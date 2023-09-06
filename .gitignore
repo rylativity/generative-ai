@@ -5,4 +5,5 @@ venv/
 notebooks/data/
 
 *.db
-*.faiss*
+*.faiss
+*faiss*.json
