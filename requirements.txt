@@ -10,6 +10,6 @@ bs4
 ipywidgets
 chromadb
 rouge
-farm-haystack[metrics,preprocessing,elasticsearch,inference]
+farm-haystack[metrics,preprocessing,elasticsearch,inference,faiss]
 pypdf
 einops
