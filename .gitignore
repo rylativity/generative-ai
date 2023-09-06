@@ -5,4 +5,4 @@ venv/
 notebooks/data/
 
 *.db
-faiss_index*
+*.faiss*
