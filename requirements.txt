@@ -1,0 +1,15 @@
+transformers[agents]
+torch
+langchain
+faiss-cpu
+sentence-transformers
+InstructorEmbedding
+unstructured
+huggingface_hub
+bs4
+ipywidgets
+chromadb
+rouge
+farm-haystack[metrics,preprocessing,elasticsearch,inference]
+pypdf
+einops

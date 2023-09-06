@@ -1,0 +1,7 @@
+venv/
+
+.env
+
+notebooks/data/
+
+*.db
