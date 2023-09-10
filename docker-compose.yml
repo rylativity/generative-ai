@@ -1,0 +1,21 @@
+version: '3.9'
+
+services:
+  jupyter:
+    build: .
+    ports: 
+      - 8888:8888
+    volumes:
+      - ./data:/workspace/data
+      - ./notebooks/:/workspace/notebooks/
+      - ./.env:/workspace/.env
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.9.2
+    environment:
+      - discovery.type=single-node
+    ports:
+      - 9200:9200
+    deploy:
+      resources:
+        limits:
+          memory: 1G
