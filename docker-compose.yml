@@ -9,6 +9,14 @@ services:
       - ./data:/workspace/data
       - ./notebooks/:/workspace/notebooks/
       - ./.env:/workspace/.env
+      - ~/.cache/:/root/.cache/
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
   opensearch: # This is also the hostname of the container within the Docker network (i.e. https://opensearch-node1/)
     image: opensearchproject/opensearch:latest # Specifying the latest available image - modify if you want a specific version
     environment:

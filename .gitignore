@@ -4,6 +4,7 @@ venv_backup/
 .env
 
 notebooks/data/
+.ipynb_checkpoints/
 
 *.db
 *.faiss
