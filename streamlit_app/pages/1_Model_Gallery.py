@@ -29,7 +29,7 @@ if "model" in st.session_state:
                 )
 
                 max_new_tokens = st.number_input(
-                    "max_new_tokens", min_value=min_new_tokens + 1, max_value=1000
+                    "max_new_tokens", min_value=min_new_tokens + 1, max_value=1000, value=20
                 )
 
                 repetition_penalty = st.slider(
