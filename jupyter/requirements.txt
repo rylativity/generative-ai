@@ -19,7 +19,6 @@ diffusers
 invisible_watermark
 accelerate
 safetensors
-opensearch-py
 pymilvus
 
 # accelerate==0.23.0
