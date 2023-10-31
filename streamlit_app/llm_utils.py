@@ -14,6 +14,7 @@ if cuda_is_available():
     MODEL_NAMES.extend([
         "TheBloke/CollectiveCognition-v1.1-Mistral-7B-GPTQ",
         "TheBloke/Llama-2-7B-chat-GPTQ",
+        "TheBloke/Llama-2-13B-chat-GPTQ"
     ])
 
 
@@ -45,9 +46,10 @@ class AppModel:
 
         prompt = prompt_template.format(**inputs)
 
-        input_tensor = self._tokenizer.encode(prompt, return_tensors="pt")
         if cuda_is_available():
-            input_tensor.to("cuda")
+            input_tensor = self._tokenizer.encode(prompt, return_tensors="pt").to("cuda")
+        else:
+            input_tensor = self._tokenizer.encode(prompt, return_tensors="pt")
 
         output_tensor = self._model.generate(
             input_tensor,

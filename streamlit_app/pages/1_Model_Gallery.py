@@ -38,13 +38,15 @@ if "model" in st.session_state:
             text_input = st.text_area("Text Input", key="text_input")
 
             generate_submit = st.form_submit_button("Generate")
-            with st.spinner("Generating"):
-                output = model.run(
-                    {"input": text_input},
-                    min_new_tokens=min_new_tokens,
-                    max_new_tokens=max_new_tokens,
-                    repetition_penalty=repetition_penalty,
-                )
+            if generate_submit:
+                with st.spinner("Generating"):
+                    output = model.run(
+                        {"input": text_input},
+                        min_new_tokens=min_new_tokens,
+                        max_new_tokens=max_new_tokens,
+                        repetition_penalty=repetition_penalty,
+                    )
 
         if generate_submit:
-            st.text(output)
+            st.write(output["text"])
+            st.caption(f"Generated tokens: {output['output_token_length']}")
