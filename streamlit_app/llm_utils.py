@@ -8,9 +8,13 @@ log = getLogger(__name__)
 
 MODEL_NAMES = [
     "PY007/TinyLlama-1.1B-Chat-v0.3",
-    # "TheBloke/CollectiveCognition-v1.1-Mistral-7B-GPTQ",
-    # "TheBloke/Llama-2-7B-chat-GPTQ",
 ]
+
+if cuda_is_available():
+    MODEL_NAMES.extend([
+        "TheBloke/CollectiveCognition-v1.1-Mistral-7B-GPTQ",
+        "TheBloke/Llama-2-7B-chat-GPTQ",
+    ])
 
 
 class AppModel:
