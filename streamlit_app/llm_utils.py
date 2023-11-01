@@ -14,7 +14,8 @@ if cuda_is_available():
     MODEL_NAMES.extend([
         # "TheBloke/CollectiveCognition-v1.1-Mistral-7B-GPTQ",
         "TheBloke/Llama-2-7B-chat-GPTQ",
-        "TheBloke/Llama-2-13B-chat-GPTQ"
+        "TheBloke/Llama-2-13B-chat-GPTQ",
+        # "TheBloke/hippogriff-30b-chat-GPTQ"
     ])
 
 
