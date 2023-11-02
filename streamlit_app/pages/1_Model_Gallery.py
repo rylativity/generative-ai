@@ -70,7 +70,7 @@ if "model" in st.session_state:
             else:
                 text_input = st.text_area("Text Input", key="text_input")
                 inputs =  {"input": text_input}
-                prompt_template = None
+                prompt_template = PromptTemplate(template="{input}",input_variables=["input"])
 
             def form_is_valid(error_banner=False):
                 if st.session_state.max_new_tokens < st.session_state.min_new_tokens:

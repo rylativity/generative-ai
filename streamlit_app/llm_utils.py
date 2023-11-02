@@ -15,6 +15,7 @@ if cuda_is_available():
         # "TheBloke/CollectiveCognition-v1.1-Mistral-7B-GPTQ",
         "TheBloke/Llama-2-7B-chat-GPTQ",
         "TheBloke/Llama-2-13B-chat-GPTQ",
+        "TheBloke/Airoboros-L2-13B-3.1.1-GPTQ",
         # "TheBloke/hippogriff-30b-chat-GPTQ"
     ])
 
