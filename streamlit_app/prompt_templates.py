@@ -18,3 +18,15 @@ Input: {input}[/INST]
 Assistant:""", 
 input_variables=["input", "context"]
 )
+
+CHAT_PROMPT_TEMPLATE = PromptTemplate(
+    template="""<s>[INST]
+<<SYS>>
+You are a conversational assistant. Answer honestly and if you do not have enough information to answer, say so. 
+<</SYS>>
+
+{messages}
+
+Assistant:""",
+input_variables=["messages"]
+)
