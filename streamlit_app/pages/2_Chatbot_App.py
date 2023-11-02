@@ -40,13 +40,14 @@ else:
 
         with st.chat_message("assistant"):
             message_placeholder = st.empty()
-            messages_history_string = "\n\n".join([
-                f"{message['role'].title()}: {message['content']}" for message in st.session_state.messages
-            ])
-            response = model.run(
-                inputs = {"messages":messages_history_string},
-                prompt_template=CHAT_PROMPT_TEMPLATE,
-                max_new_tokens=300
-            )["text"]
+            with st.spinner("..."):
+                messages_history_string = "\n\n".join([
+                    f"{message['role'].title()}: {message['content']}" for message in st.session_state.messages
+                ])
+                response = model.run(
+                    inputs = {"messages":messages_history_string},
+                    prompt_template=CHAT_PROMPT_TEMPLATE,
+                    max_new_tokens=300
+                )["text"]
             message_placeholder.markdown(response)
         st.session_state.messages.append({"role": "assistant", "content": response})
