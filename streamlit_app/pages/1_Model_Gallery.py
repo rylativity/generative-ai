@@ -24,6 +24,7 @@ with st.sidebar:
 if "model" in st.session_state:
     model = st.session_state.model
 
+    st.caption(f"Using model {model._model_name}")
     with st.container():
         with st.expander("Advanced Prompting"):
             use_custom_prompt = st.checkbox("Custom Prompt")

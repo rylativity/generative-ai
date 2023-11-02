@@ -25,6 +25,8 @@ else:
     model = st.session_state.model
 
     st.title("ChatBot")
+    st.caption(f"Using model {model._model_name}")
+    st.divider()
 
     if "messages" not in st.session_state:
         st.session_state.messages = []
