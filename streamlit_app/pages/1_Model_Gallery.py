@@ -41,11 +41,11 @@ if "model" in st.session_state:
             with st.sidebar:
                 st.header("Generation Parameters")
                 st.session_state.min_new_tokens = st.number_input(
-                    "min_new_tokens", min_value=1, max_value=1000, value=1
+                    "min_new_tokens", min_value=1, max_value=None, value=1
                 )
 
                 st.session_state.max_new_tokens = st.number_input(
-                    "max_new_tokens", min_value=1, max_value=1000, value=200
+                    "max_new_tokens", min_value=1, max_value=None, value=200
                 )
 
                 st.session_state.repetition_penalty = st.slider(

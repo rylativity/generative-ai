@@ -2,3 +2,7 @@ streamlit
 transformers[agents]
 sentence-transformers
 langchain
+ctransformers
+llama-cpp-python
+auto-gptq
+optimum

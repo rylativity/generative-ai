@@ -1,8 +1,10 @@
 from logging import getLogger
 from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
+# from ctransformers import AutoModelForCausalLM as CAutoModelForCausalLM
 from langchain.prompts import PromptTemplate
 from torch.cuda import is_available as cuda_is_available
 from prompt_templates import TINYLLAMA_DEFAULT
+from auto_gptq import exllama_set_max_input_length
 
 log = getLogger(__name__)
 
@@ -27,6 +29,10 @@ class AppModel:
             model_name,
             device_map="auto",
         )
+        try:
+            exllama_set_max_input_length(self._model, 4096)
+        except (AttributeError, ValueError):
+            pass
         self._tokenizer = AutoTokenizer.from_pretrained(
             model_name,
             device_map="auto",
