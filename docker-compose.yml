@@ -42,6 +42,14 @@ services:
       - 8501:8501
     volumes:
       - ./streamlit_app:/app/
+      - ~/.cache/:/root/.cache/
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
 
 volumes:
   chroma-data:
