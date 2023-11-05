@@ -7,5 +7,11 @@ llama-cpp-python
 auto-gptq
 optimum
 chromadb-client
-unstructured
+# opentelemetry-api
+# opentelemetry-sdk
+opentelemetry-exporter-otlp
+unstructured[all-docs]
 python-magic
+pdf2image
+pdfminer.six
+pytesseract

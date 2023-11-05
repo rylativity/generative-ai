@@ -1,4 +1,3 @@
-
 FROM python:3.10-bullseye
 
 RUN apt-get update && apt-get install -y \
@@ -6,6 +5,7 @@ RUN apt-get update && apt-get install -y \
     software-properties-common \
     curl \
     libmagic1 \
+    libgl1 \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
