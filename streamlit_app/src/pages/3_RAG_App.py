@@ -29,9 +29,11 @@ CHROMADB_COLLECTION = os.environ.get("CHROMADB_COLLECTION") or "default"
 DEFAULT_CHUNK_SIZE=500
 DEFAULT_CHUNK_OVERLAP=100
 
-embedding_function = SentenceTransformerEmbeddingFunction(device="cuda" if cuda_is_available() else "cpu")
-chroma = chromadb.HttpClient(host=CHROMADB_HOST, port=CHROMADB_PORT, settings=Settings(anonymized_telemetry=False))
-collection = chroma.get_or_create_collection(CHROMADB_COLLECTION, embedding_function=embedding_function)
+embedding_model_name = "all-MiniLM-L6-v2"
+embedding_function = SentenceTransformerEmbeddingFunction(model_name=embedding_model_name, device="cuda" if cuda_is_available() else "cpu")
+chroma_httpclient = chromadb.HttpClient(host=CHROMADB_HOST, port=CHROMADB_PORT, settings=Settings(anonymized_telemetry=False))
+collection = chroma_httpclient.get_or_create_collection(CHROMADB_COLLECTION, embedding_function=embedding_function)
+
 num_docs = collection.count()
 
 error = st.empty()
@@ -39,7 +41,7 @@ error = st.empty()
 def delete_all_data():
     rmtree(FILES_BASE_DIR)
     try:
-        chroma.delete_collection(CHROMADB_COLLECTION)
+        chroma_httpclient.delete_collection(CHROMADB_COLLECTION)
     except ValueError:
         pass
 
@@ -69,7 +71,7 @@ def upsert_chroma_docs(documents: list[Document], overwrite_existing_source_docs
             collection.delete(where={"source":source})
     
     texts = [doc.page_content for doc in documents]
-    ids = [sha1(text.encode("utf8")).hexdigest() for text in texts]
+    ids = [sha1(f"{doc.page_content}{doc.metadata['start_index']}".encode("utf8")).hexdigest() for doc in documents]
     embeddings = embedding_function(texts)
     metadatas = [doc.metadata for doc in documents]
 
@@ -80,7 +82,9 @@ def upsert_chroma_docs(documents: list[Document], overwrite_existing_source_docs
         metadatas=metadatas
     )
 
-def search(query:str, n_results=2):
+def search(query:str,
+            n_results=5
+            ):
     query_embedding = embedding_function([query])
     results = collection.query(query_embeddings=query_embedding, n_results=n_results)
     results = {k:v[0] for k,v in results.items() if v}
@@ -205,6 +209,8 @@ else:
         submit = st.form_submit_button()
         if submit:
             res = search(query=question)
+            # st.write(res)
+            
             relevant_documents = res["documents"]
             context_string = "\n\n".join(relevant_documents)
             response = model.run(
@@ -214,6 +220,8 @@ else:
             )
             st.header("Answer")
             st.write(response["text"])
+
+            
             if return_sources:
                 st.divider()
                 st.header("Sources")
