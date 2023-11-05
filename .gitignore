@@ -11,3 +11,5 @@ notebooks/data/
 *.faiss
 *faiss*.json
 volumes/
+
+streamlit_app/uploaded_files/
