@@ -35,9 +35,18 @@ services:
       - 8000:8000
     volumes:
       - chroma-data:/chroma
+    healthcheck:
+      test: ["CMD","curl", "http://localhost:8000/api/v1/heartbeat", "-H", "'accept: application/json'"]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 30s
   
   streamlit:
-    build: ./streamlit_app/
+    build: ./streamlit_app
+    environment:
+      - CHROMADB_HOST=chroma
+      - CHROMADB_PORT=8000
     ports:
       - 8501:8501
     volumes:

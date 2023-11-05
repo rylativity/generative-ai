@@ -6,3 +6,6 @@ ctransformers
 llama-cpp-python
 auto-gptq
 optimum
+chromadb-client
+unstructured
+python-magic
