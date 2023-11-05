@@ -38,8 +38,6 @@ class AppModel:
             device_map="auto",
         )
 
-        self._pipe = pipeline(task=task, model=self._model, tokenizer=self._tokenizer)
-
     def run(
         self,
         inputs: dict,
