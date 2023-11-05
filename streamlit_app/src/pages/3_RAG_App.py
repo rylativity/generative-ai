@@ -17,9 +17,9 @@ os.makedirs(PROCESSED_DOCS_DIR, exist_ok=True)
 
 error = st.empty()
 
-def write_to_fs(file_content: BytesIO | str, filename: str, upload_dir=SOURCE_DOCS_DIR):
+def write_to_fs(file_content: bytes | str, filename: str, upload_dir=SOURCE_DOCS_DIR):
     
-    if type(file_content) == BytesIO:
+    if type(file_content) == bytes:
         mode = "wb+"
     elif type(file_content) == str:
         mode = "w+"
@@ -37,8 +37,12 @@ def fetch_available_sources():
 
 def index_chroma_docs(docs, collection_name:str):
     ...
-def store_and_index_pdf():
-    ...
+def store_and_index_uploaded_file(uploaded_file):
+    filename = uploaded_file.name
+    file_content = uploaded_file.getvalue()
+    write_to_fs(file_content=file_content, filename=filename)
+    del st.session_state["uploaded_file"]
+    st.rerun()
 
 def store_and_index_html(url:str):
     loader = UnstructuredURLLoader(urls=[url])
@@ -49,6 +53,8 @@ def store_and_index_html(url:str):
         error.error("URL Likely Invalid")
         raise e
     write_to_fs(json.dumps(html_doc.dict()), f"{url.split('/')[-1]}.json")
+    del st.session_state["entered_url"]
+    st.rerun()
     
 
 with st.sidebar:
@@ -74,24 +80,31 @@ with st.sidebar:
     
     st.divider()
 
-    st.header("Add Content")
-    
-    # Handle File Uploads
-    # uploaded_file = st.file_uploader("Upload a File *(PDF Only)*")
-    # if uploaded_file is not None:
-    #     filename = uploaded_file.name
-    #     # To read file as bytes:
-    #     bytes_data = BytesIO(uploaded_file.getvalue())
+    with st.expander("Add Content"):
 
-    #     write_to_fs(file_content=bytes_data, filename=filename)
-        
-        
+        content_upload_options = ["url", "file"]
 
-    entered_url = st.text_input("Enter a URL", key="entered_url")
-    if entered_url:
-        store_and_index_html(entered_url)
-        del st.session_state["entered_url"]
-        st.rerun()
+        upload_option = st.radio("Type", options=content_upload_options, horizontal=True)
+
+        if upload_option == "url":
+            with st.form("add_content_form", clear_on_submit=True):
+                entered_url = st.text_input("Enter a URL", key="entered_url")
+                url_submitted =  st.form_submit_button()
+                
+                if url_submitted: 
+                    store_and_index_html(url=entered_url)
+        
+        elif upload_option == "file":
+            with st.form("upload_content_form", clear_on_submit=True):
+                uploaded_file = st.file_uploader("Upload a File *(PDF Only)*", key="uploaded_file")
+                file_submitted = st.form_submit_button()
+                if file_submitted:
+                    store_and_index_uploaded_file(uploaded_file=uploaded_file)
+                
+                    
+
+
+
 
 if not "model" in st.session_state or not "selected_document" in st.session_state:
     st.header("*Select a source document and load a model to get started*")
