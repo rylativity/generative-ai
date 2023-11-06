@@ -52,6 +52,7 @@ class AppModel:
         max_new_tokens=20,
         repetition_penalty=1.0,
         remove_tokens=["<s>", "</s>"],
+        stop_sequences=[]
     ):
         if prompt_template is None:
             prompt_template = TINYLLAMA_DEFAULT
@@ -75,6 +76,8 @@ class AppModel:
         ## The batch_decode call below removes the input tokens
         generated_text = self._tokenizer.batch_decode(generated_tensor)[0]
 
+        for sequence in stop_sequences:
+            generated_text = generated_text.split(sequence)[0]
         for token in remove_tokens:
             generated_text = generated_text.replace(token, "")
         generated_text = generated_text.strip('" \n')

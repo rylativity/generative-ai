@@ -83,10 +83,11 @@ def upsert_chroma_docs(documents: list[Document], overwrite_existing_source_docs
     )
 
 def search(query:str,
+           query_filter:dict=None,
             n_results=5
             ):
     query_embedding = embedding_function([query])
-    results = collection.query(query_embeddings=query_embedding, n_results=n_results)
+    results = collection.query(query_embeddings=query_embedding, where=query_filter, n_results=n_results)
     results = {k:v[0] for k,v in results.items() if v}
     return results
 
@@ -141,15 +142,21 @@ def store_and_index_html(url:str, chunk_size=DEFAULT_CHUNK_SIZE, chunk_overlap=D
 
 with st.sidebar:
 
-    available_sources = fetch_available_sources()
-    selected_document = st.selectbox("Source Document", 
-                                     options=available_sources,
-                                     format_func=lambda x: x.split("source/")[-1],
-                                     key="selected_document")    
+    # available_sources = fetch_available_sources()
+    # selected_document = st.selectbox("Source Document Filter", 
+    #                                  options=available_sources,
+    #                                  format_func=lambda x: x.split("source/")[-1],
+    #                                  key="selected_document",
+    #                                  index=None)    
+    # if st.session_state.selected_document:
+    #     st.write(f"Filtered to Document: {st.session_state.selected_document}")
     
     with st.form("Model Settings"):
         st.header("Model Settings")
-        st.write(f"CUDA Available: {cuda_is_available()}")
+        if cuda_is_available():
+            st.success(f"CUDA Available")
+        else:
+            st.error(f"CUDA Unavailable")
         model_name = st.selectbox(
             "Model", options=MODEL_NAMES, placeholder="Select a model...", index=None
         )
@@ -194,12 +201,15 @@ with st.sidebar:
 
 st.title("Retrieval Augmented Generation")
 if not "model" in st.session_state or not "selected_document" in st.session_state:
-    st.header("*Select a source document and load a model to get started...*")
+    st.header("*Load a model to get started...*")
 else:
     model = st.session_state.model
     st.caption(f"Found {num_docs} split documents")
+    
     st.caption(f"Using model {model._model_name}")
-    st.caption(f"Using document {st.session_state.selected_document}")
+    
+    # st.caption(f"Using document {st.session_state.selected_document}")
+    
     st.divider()
 
     with st.form("qa_form"):
@@ -207,7 +217,9 @@ else:
         question = st.text_area("Enter your question...", value="What is langchain?", key="question")
         
         submit = st.form_submit_button()
+        
         if submit:
+                
             res = search(query=question)
             # st.write(res)
             
