@@ -2,7 +2,7 @@ version: '3.9'
 
 services:
   jupyter:
-    build: .
+    build: ./jupyter
     ports: 
       - 8888:8888
     volumes:
@@ -44,14 +44,14 @@ services:
       start_period: 30s
   
   streamlit:
-    build: ./streamlit_app
+    build: ./streamlit_app/
     environment:
       - CHROMADB_HOST=chroma
       - CHROMADB_PORT=8000
     ports:
       - 8501:8501
     volumes:
-      - ./streamlit_app:/app/
+      - ./streamlit_app/:/app/
       - ~/.cache/:/root/.cache/
     deploy:
       resources:
