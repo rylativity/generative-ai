@@ -20,7 +20,7 @@ input_variables=["input", "context"]
 )
 
 CHAT_PROMPT_TEMPLATE = PromptTemplate(
-    template="""<s>[INST]
+template="""<s>[INST]
 <<SYS>>
 You are a conversational assistant. Answer honestly and if you do not have enough information to answer, say so. 
 <</SYS>>
@@ -29,4 +29,18 @@ You are a conversational assistant. Answer honestly and if you do not have enoug
 
 Assistant:""",
 input_variables=["messages"]
+)
+
+SUMMARIZE_PROMPT_TEMPLATE = PromptTemplate(
+template="""<s>[INST]
+<<SYS>>
+You are a detail-oriented assistant. The answers you provide are always grounded in the source text. Be as accurate as possible, and do not make up information.
+<</SYS>>
+
+Summarize the following text.
+
+Text:{text}[/INST]
+
+Summary:""",
+input_variables=["text"]
 )

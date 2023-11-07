@@ -41,7 +41,7 @@ class AppModel:
             device_map="auto",
         )
         
-        # self._pipeline = pipeline(task="text-generation", model=self._model, tokenizer=self._tokenizer)
+        self._pipeline = pipeline(task="text-generation", model=self._model, tokenizer=self._tokenizer)
 
 
     def run(
