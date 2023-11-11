@@ -8,28 +8,14 @@ from torch.cuda import is_available as cuda_is_available
 from llm_utils import MODEL_NAMES, AppModel
 from prompt_templates import SUMMARIZE_PROMPT_TEMPLATE
 from uuid import uuid4
+from components import default_layout_component
+
+default_layout_component()
 
 if not "document" in st.session_state:
     st.session_state["document"] = None
 
 with st.sidebar:
-
-    with st.form("Model Settings"):
-        st.header("Model Settings")
-        if cuda_is_available():
-            st.success(f"CUDA Available")
-        else:
-            st.error(f"CUDA Unavailable")
-        model_name = st.selectbox(
-            "Model", options=MODEL_NAMES, placeholder="Select a model...", index=None
-        )
-
-        load_model = st.form_submit_button("Load Model")
-
-        if load_model:
-            with st.spinner("Loading model"):
-                st.session_state.model = AppModel(model_name=model_name)
-            st.write(f"Model {model_name} loaded successfully")
     
     st.divider()
 
@@ -65,9 +51,15 @@ with st.sidebar:
                     st.session_state.document = doc
 
 st.title("Document Processing")
-if not st.session_state["document"]:
-    ...
+if not "model" in st.session_state:
+    pass
 else:
+    model = st.session_state.model
+    st.caption(f"Using model {model._model_name}")
+if not st.session_state["document"] or not "model" in st.session_state:
+    st.write("Select a model and add a document to get started...")
+else:
+    st.caption(f"Using model {model._model_name}")
     st.divider()
     st.header(f"Document Source: {st.session_state['document'].metadata['source']}")
     with st.expander("Document Content", expanded=False):

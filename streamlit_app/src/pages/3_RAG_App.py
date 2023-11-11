@@ -14,7 +14,8 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from torch.cuda import is_available as cuda_is_available
 
 from llm_utils import MODEL_NAMES, AppModel
-from prompt_templates import LLAMA2_DEFAULT
+from prompt_templates import RAG_PROMPT_TEMPLATE
+from components import default_layout_component
 
 FILES_BASE_DIR = "./uploaded_files/"
 SOURCE_DOCS_DIR = f"{FILES_BASE_DIR}source/"
@@ -139,34 +140,9 @@ def store_and_index_html(url:str, chunk_size=DEFAULT_CHUNK_SIZE, chunk_overlap=D
     
     st.rerun()
     
+default_layout_component()
 
 with st.sidebar:
-
-    # available_sources = fetch_available_sources()
-    # selected_document = st.selectbox("Source Document Filter", 
-    #                                  options=available_sources,
-    #                                  format_func=lambda x: x.split("source/")[-1],
-    #                                  key="selected_document",
-    #                                  index=None)    
-    # if st.session_state.selected_document:
-    #     st.write(f"Filtered to Document: {st.session_state.selected_document}")
-    
-    with st.form("Model Settings"):
-        st.header("Model Settings")
-        if cuda_is_available():
-            st.success(f"CUDA Available")
-        else:
-            st.error(f"CUDA Unavailable")
-        model_name = st.selectbox(
-            "Model", options=MODEL_NAMES, placeholder="Select a model...", index=None
-        )
-
-        load_model = st.form_submit_button("Load Model")
-
-        if load_model:
-            with st.spinner("Loading model"):
-                st.session_state.model = AppModel(model_name=model_name)
-            st.write(f"Model {model_name} loaded successfully")
     
     st.divider()
 
@@ -200,7 +176,7 @@ with st.sidebar:
         st.button("Delete All Content", on_click=delete_all_data, use_container_width=True)
 
 st.title("Retrieval Augmented Generation")
-if not "model" in st.session_state or not "selected_document" in st.session_state:
+if not "model" in st.session_state:
     st.header("*Load a model to get started...*")
 else:
     model = st.session_state.model
@@ -227,7 +203,7 @@ else:
             context_string = "\n\n".join(relevant_documents)
             response = model.run(
                 inputs = {"input":question,"context":context_string},
-                prompt_template=LLAMA2_DEFAULT,
+                prompt_template=RAG_PROMPT_TEMPLATE,
                 max_new_tokens=1000
             )
             st.header("Answer")

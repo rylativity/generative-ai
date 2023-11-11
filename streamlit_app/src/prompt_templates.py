@@ -44,3 +44,17 @@ Text:{text}[/INST]
 Summary:""",
 input_variables=["text"]
 )
+
+RAG_PROMPT_TEMPLATE = PromptTemplate(
+template="""<s>[INST]
+<<SYS>>
+You are a helpful assistant. Base your answers on the context below. Your answers are always accurate and honest. 
+<</SYS>>
+
+Context: {context}
+
+Input: {input}[/INST]
+
+Assistant:""", 
+input_variables=["input", "context"]
+)
