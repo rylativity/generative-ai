@@ -48,7 +48,7 @@ input_variables=["text"]
 RAG_PROMPT_TEMPLATE = PromptTemplate(
 template="""<s>[INST]
 <<SYS>>
-You are a helpful assistant. Base your answers on the context below. Your answers are always accurate and honest. 
+You are a helpful assistant. Base your answers on the context below. Your answers are always accurate and honest. If you do not have enough information to answer, say so.
 <</SYS>>
 
 Context: {context}

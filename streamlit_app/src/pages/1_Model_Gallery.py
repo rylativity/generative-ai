@@ -9,7 +9,7 @@ from components import default_layout_component
 default_layout_component()
 
 if "model" in st.session_state:
-    model = st.session_state.model
+    model: AppModel = st.session_state.model
 
     st.caption(f"Using model {model._model_name}")
     with st.container():
