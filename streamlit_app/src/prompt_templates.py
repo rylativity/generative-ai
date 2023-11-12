@@ -46,15 +46,21 @@ Summary:""",
 )
 
 RAG_PROMPT_TEMPLATE = PromptTemplate(
-    template="""<s>[INST]
-<<SYS>>
-You are a helpful assistant. Base your answers on the context below. Your answers are always accurate and honest. If you do not have enough information to answer, say so.
-<</SYS>>
+template="""Respond accurately to the user based only on the following context. If the context does not contain the answer, you can ignore it. Always follow up with the user at the end of your response. Be informative, but avoid being overly verbose:
+{context}
 
-Context: {context}
-
-Input: {input}[/INST]
+User: {input}[/INST]
 
 Assistant:""",
     input_variables=["input", "context"],
+)
+
+CONDENSE_QUESTION_PROMPT_TEMPLATE = PromptTemplate(
+template="""Given the following conversation and a follow up question, rephrase the follow up question to be a standalone question, in its original language.
+
+Chat History:
+{chat_history}
+Follow Up Input: {input}
+Standalone question:
+""", input_variables=["chat_history","input"]
 )
