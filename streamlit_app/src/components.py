@@ -29,14 +29,13 @@ def model_settings(include_gen_params=True):
                 "Model", options=st.session_state.available_model_names, placeholder="Select a model...", index=None, key="model_name"
             )
 
+            device_map = st.selectbox("Device Map (Being implemented)", options=["auto","cpu"], disabled=True)
+
             load_model = st.form_submit_button("Load Model")
 
             if load_model:
                 with st.spinner("Loading model"):
-                    if disable_cuda:
-                        st.session_state["model"] = AppModel(model_name=model_name, device_map="cpu")
-                    else:
-                        st.session_state["model"] = AppModel(model_name=model_name)
+                    st.session_state["model"] = AppModel(model_name=model_name, device_map=device_map)
                     st.write(f"Model {st.session_state.model._model_name} loaded successfully")
             if "model" in st.session_state:
                 st.caption(f"Using Model {st.session_state.model._model_name}")

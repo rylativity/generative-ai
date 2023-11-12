@@ -10,17 +10,17 @@ log = getLogger(__name__)
 
 CPU_MODEL_NAMES = [
     "PY007/TinyLlama-1.1B-Chat-v0.3",
-    "TheBloke/samantha-mistral-7B-GPTQ",
-    "TheBloke/Llama-2-7B-chat-GPTQ",
     # "TheBloke/CollectiveCognition-v1.1-Mistral-7B-GPTQ",
 ]
 
 GPU_MODEL_NAMES = [
-        "TheBloke/Llama-2-13B-chat-GPTQ",
-        "TheBloke/Airoboros-L2-13B-3.1.1-GPTQ",
-        "TheBloke/Mythalion-13B-GPTQ",
-        "TheBloke/Athena-v3-GPTQ",
-        "TheBloke/MXLewd-L2-20B-GPTQ"
+    "TheBloke/samantha-mistral-7B-GPTQ",
+    "TheBloke/Llama-2-7B-chat-GPTQ",
+    "TheBloke/Llama-2-13B-chat-GPTQ",
+    "TheBloke/Airoboros-L2-13B-3.1.1-GPTQ",
+    "TheBloke/Mythalion-13B-GPTQ",
+    "TheBloke/Athena-v3-GPTQ",
+    "TheBloke/MXLewd-L2-20B-GPTQ"
 ]
 
 
@@ -30,9 +30,10 @@ class AppModel:
                  device_map="auto"
                  ):
         self._model_name = model_name
+        self._device_map = device_map
         self._model = AutoModelForCausalLM.from_pretrained(
-            model_name,
-            device_map=device_map,
+            self._model_name,
+            device_map=self._device_map,
         )
         try:
             exllama_set_max_input_length(self._model, 4096)
@@ -65,7 +66,7 @@ class AppModel:
 
         prompt = prompt_template.format(**inputs)
 
-        if cuda_is_available():
+        if self._device_map == "auto" and cuda_is_available():
             input_tensor = self._tokenizer.encode(prompt, return_tensors="pt").to("cuda")
         else:
             input_tensor = self._tokenizer.encode(prompt, return_tensors="pt")
