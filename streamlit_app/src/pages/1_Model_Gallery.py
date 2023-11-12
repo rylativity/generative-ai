@@ -4,18 +4,22 @@ from prompt_templates import LLAMA2_DEFAULT
 from langchain.prompts import PromptTemplate
 from torch.cuda import is_available as cuda_is_available
 from string import Formatter
-from components import default_layout_component
+from components import model_settings
 
-default_layout_component()
+## This will provide us with model selection and generation parameter components.
+model_settings()
+# Model is accessible from st.session_state.model, and generation parameters are accessible from st.session_state.generation_parameters
 
 if "model" in st.session_state:
     model: AppModel = st.session_state.model
+    generation_parameters: dict = st.session_state.generation_parameters
 
     st.caption(f"Using model {model._model_name}")
     with st.container():
-        with st.expander("Advanced Prompting"):
-            use_custom_prompt = st.checkbox("Custom Prompt")
-            if use_custom_prompt:
+        use_custom_prompt = st.checkbox("Custom Prompt")
+        if use_custom_prompt:
+            with st.expander("Advanced Prompting"):
+                
                 st.session_state.prompt_template = st.text_area("Prompt Template", value=LLAMA2_DEFAULT.template)
                 st.caption("Type your prompt template above. Variables should be surrounded by curly braces (e.g. {input_string})")
 
@@ -25,19 +29,6 @@ if "model" in st.session_state:
 
     with st.container():
         with st.form("Generation"):
-            with st.sidebar:
-                st.header("Generation Parameters")
-                st.session_state.min_new_tokens = st.number_input(
-                    "min_new_tokens", min_value=1, max_value=None, value=1
-                )
-
-                st.session_state.max_new_tokens = st.number_input(
-                    "max_new_tokens", min_value=1, max_value=None, value=200
-                )
-
-                st.session_state.repetition_penalty = st.slider(
-                    "repetition_penalty", min_value=1.0, max_value=2.0, value=1.0
-                )
             
             if use_custom_prompt:
 
@@ -61,11 +52,11 @@ if "model" in st.session_state:
                 prompt_template = PromptTemplate(template="{input}",input_variables=["input"])
 
             def form_is_valid(error_banner=False):
-                if st.session_state.max_new_tokens < st.session_state.min_new_tokens:
+                if generation_parameters["max_new_tokens"] < generation_parameters["min_new_tokens"]:
                     if error_banner:
                         st.error("Min tokens is greater than max tokens")
                     return False
-                elif st.session_state.min_new_tokens < 1 or st.session_state.max_new_tokens < 1:
+                elif generation_parameters["min_new_tokens"] < 1 or generation_parameters["max_new_tokens"] < 1:
                     if error_banner:
                         st.error("Min and max tokens must be greater than 1")
                     return False
@@ -82,13 +73,10 @@ if "model" in st.session_state:
                     output = model.run(
                        inputs=inputs,
                        prompt_template=prompt_template,
-                        min_new_tokens=st.session_state.min_new_tokens,
-                        max_new_tokens=st.session_state.max_new_tokens,
-                        repetition_penalty=st.session_state.repetition_penalty,
+                        **generation_parameters
                     )
 
         if generate_submit and form_is_valid():
             st.write(output["text"])
             st.caption(f"Generated tokens: {output['output_token_length']}")
-    
     

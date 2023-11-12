@@ -51,8 +51,9 @@ class AppModel:
         min_new_tokens=1,
         max_new_tokens=20,
         repetition_penalty=1.0,
-        num_beams=1,
         do_sample=False,
+        temperature=0.5,
+        num_beams=1,
         num_return_sequences=1,
         remove_tokens=["<s>", "</s>"],
         stop_sequences=[]
@@ -71,9 +72,10 @@ class AppModel:
             input_tensor,
             min_new_tokens=min_new_tokens,
             max_new_tokens=max_new_tokens,
+            do_sample=do_sample,
+            temperature=temperature,
             repetition_penalty=repetition_penalty,
             num_beams=num_beams,
-            do_sample=do_sample,
             num_return_sequences=num_return_sequences
         )
 

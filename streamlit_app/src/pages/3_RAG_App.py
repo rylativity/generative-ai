@@ -15,7 +15,7 @@ from torch.cuda import is_available as cuda_is_available
 
 from llm_utils import MODEL_NAMES, AppModel
 from prompt_templates import RAG_PROMPT_TEMPLATE
-from components import default_layout_component
+from components import model_settings
 
 FILES_BASE_DIR = "./uploaded_files/"
 SOURCE_DOCS_DIR = f"{FILES_BASE_DIR}source/"
@@ -140,7 +140,7 @@ def store_and_index_html(url:str, chunk_size=DEFAULT_CHUNK_SIZE, chunk_overlap=D
     
     st.rerun()
     
-default_layout_component()
+model_settings()
 
 with st.sidebar:
     

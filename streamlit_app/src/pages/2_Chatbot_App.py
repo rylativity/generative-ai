@@ -3,9 +3,9 @@ from torch.cuda import empty_cache as cuda_empty_cache, is_available as cuda_is_
 
 from llm_utils import MODEL_NAMES, AppModel
 from prompt_templates import CHAT_PROMPT_TEMPLATE
-from components import default_layout_component
+from components import model_settings
 
-default_layout_component()
+model_settings()
 
 if not "model" in st.session_state:
     st.header("*Load a model to get started*")
