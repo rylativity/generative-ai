@@ -176,7 +176,7 @@ def store_and_index_html(
     st.rerun()
 
 
-model_settings()
+model_settings(default_generation_kwarg_overrides={"max_new_tokens":1000,"repetition_penalty":1.2})
 
 with st.sidebar:
     st.divider()

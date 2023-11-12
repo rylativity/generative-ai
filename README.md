@@ -8,6 +8,8 @@ If not using GPU, you MUST comment out the entire "deploy" section and everythin
 
 For instructions on installing dependencies required to make GPU available inside container, see https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html.
 
+**I highly recommend using docker, because it includes containers for auxiliary services that some of the notebooks and UI Apps rely on. If you use the Python setup instructions, you will need to configure your own auxiliary services (e.g. Chroma vector database) where relevant.**
+
 
 ### Option 1) Docker (Recommended)
 
