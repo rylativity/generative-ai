@@ -1,5 +1,6 @@
 from logging import getLogger
 from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
+
 # from ctransformers import AutoModelForCausalLM as CAutoModelForCausalLM
 from langchain.prompts import PromptTemplate
 from torch.cuda import is_available as cuda_is_available
@@ -20,15 +21,12 @@ GPU_MODEL_NAMES = [
     "TheBloke/Airoboros-L2-13B-3.1.1-GPTQ",
     "TheBloke/Mythalion-13B-GPTQ",
     "TheBloke/Athena-v3-GPTQ",
-    "TheBloke/MXLewd-L2-20B-GPTQ"
+    "TheBloke/MXLewd-L2-20B-GPTQ",
 ]
 
 
 class AppModel:
-    def __init__(self, 
-                 model_name,
-                 device_map="auto"
-                 ):
+    def __init__(self, model_name, device_map="auto"):
         self._model_name = model_name
         self._device_map = device_map
         self._model = AutoModelForCausalLM.from_pretrained(
@@ -43,9 +41,10 @@ class AppModel:
             model_name,
             device_map=device_map,
         )
-        
-        self._pipeline = pipeline(task="text-generation", model=self._model, tokenizer=self._tokenizer)
 
+        self._pipeline = pipeline(
+            task="text-generation", model=self._model, tokenizer=self._tokenizer
+        )
 
     def run(
         self,
@@ -59,7 +58,7 @@ class AppModel:
         num_beams=1,
         num_return_sequences=1,
         remove_tokens=["<s>", "</s>"],
-        stop_sequences=[]
+        stop_sequences=[],
     ):
         if prompt_template is None:
             prompt_template = TINYLLAMA_DEFAULT
@@ -67,7 +66,9 @@ class AppModel:
         prompt = prompt_template.format(**inputs)
 
         if self._device_map == "auto" and cuda_is_available():
-            input_tensor = self._tokenizer.encode(prompt, return_tensors="pt").to("cuda")
+            input_tensor = self._tokenizer.encode(prompt, return_tensors="pt").to(
+                "cuda"
+            )
         else:
             input_tensor = self._tokenizer.encode(prompt, return_tensors="pt")
 
@@ -79,7 +80,7 @@ class AppModel:
             temperature=temperature,
             repetition_penalty=repetition_penalty,
             num_beams=num_beams,
-            num_return_sequences=num_return_sequences
+            num_return_sequences=num_return_sequences,
         )
 
         generated_tensor = output_tensor[:, input_tensor.shape[1] :]

@@ -17,7 +17,6 @@ if not "document" in st.session_state:
     st.session_state["document"] = None
 
 with st.sidebar:
-    
     st.divider()
 
     st.header(f"Add document")
@@ -27,19 +26,24 @@ with st.sidebar:
     upload_option = st.radio("Type", options=content_upload_options, horizontal=True)
 
     with st.form("upload_form"):
-        
         if upload_option == "url":
-            entered_url = st.text_input("Enter a URL", value="https://python.langchain.com/docs/get_started/introduction", key="entered_url")
-            url_submitted =  st.form_submit_button()
-            
+            entered_url = st.text_input(
+                "Enter a URL",
+                value="https://python.langchain.com/docs/get_started/introduction",
+                key="entered_url",
+            )
+            url_submitted = st.form_submit_button()
+
             if url_submitted:
                 with st.spinner():
-                    loader = UnstructuredURLLoader(urls=[entered_url]) 
+                    loader = UnstructuredURLLoader(urls=[entered_url])
                     doc = loader.load()[0]
                     st.session_state.document = doc
-        
+
         elif upload_option == "file":
-            uploaded_file = st.file_uploader("Upload a File *(PDF Only)*", key="uploaded_file")
+            uploaded_file = st.file_uploader(
+                "Upload a File *(PDF Only)*", key="uploaded_file"
+            )
             file_submitted = st.form_submit_button()
             if file_submitted:
                 with st.spinner():
@@ -65,10 +69,15 @@ else:
     st.header(f"Document Source: {st.session_state['document'].metadata['source']}")
     with st.expander("Document Content", expanded=False):
         st.write(st.session_state["document"].page_content)
-    
+
     processing_method_options = ["Summarization", "Extraction", "Q&A"]
-    processing_option = st.radio("Processing Method", options=processing_method_options, index=None, horizontal=True)
-    
+    processing_option = st.radio(
+        "Processing Method",
+        options=processing_method_options,
+        index=None,
+        horizontal=True,
+    )
+
     if not "model" in st.session_state:
         st.write("Select a model to proceed")
     else:
@@ -79,9 +88,11 @@ else:
         if submitted:
             with st.spinner("Summarizing..."):
                 prompt = SUMMARIZE_PROMPT_TEMPLATE
-                inputs = {"text":st.session_state["document"].page_content}
+                inputs = {"text": st.session_state["document"].page_content}
                 llm = HuggingFacePipeline(pipeline=model._pipeline)
-                token_length = len(model._tokenizer.encode(st.session_state.document.page_content))
+                token_length = len(
+                    model._tokenizer.encode(st.session_state.document.page_content)
+                )
                 if token_length > 1500:
                     chain_type = "map_reduce"
                     splitter = RecursiveCharacterTextSplitter(chunk_size=1000)
@@ -90,7 +101,7 @@ else:
                     chain_type = "stuff"
                     docs = [st.session_state.document]
                 chain = load_summarize_chain(llm, chain_type=chain_type)
-                
+
                 summary = chain.run(docs)
                 st.write(summary)
 
@@ -99,5 +110,3 @@ else:
         st.write("TODO...")
     elif processing_option == "Q&A":
         st.write("TODO...")
-
-    

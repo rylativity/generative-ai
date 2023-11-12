@@ -10,7 +10,7 @@ if not "model" in st.session_state:
     st.header("*Load a model to get started*")
 else:
     model: AppModel = st.session_state.model
-    generation_parameters:dict = st.session_state.generation_parameters
+    generation_parameters: dict = st.session_state.generation_parameters
 
     st.title("ChatBot")
     st.caption(f"Using model {model._model_name}")
@@ -18,9 +18,9 @@ else:
 
     if "messages" not in st.session_state:
         st.session_state.messages = []
-    
+
     def clear_messages():
-        st.session_state.messages=[]
+        st.session_state.messages = []
 
     for message in st.session_state.messages:
         with st.chat_message(message["role"]):
@@ -34,16 +34,18 @@ else:
         with st.chat_message("assistant"):
             message_placeholder = st.empty()
             with st.spinner("..."):
-                messages_history_string = "\n\n".join([
-                    f"{message['role'].title()}: {message['content']}" for message in st.session_state.messages
-                ])
+                messages_history_string = "\n\n".join(
+                    [
+                        f"{message['role'].title()}: {message['content']}"
+                        for message in st.session_state.messages
+                    ]
+                )
                 response = model.run(
-                    inputs = {"messages":messages_history_string},
+                    inputs={"messages": messages_history_string},
                     prompt_template=CHAT_PROMPT_TEMPLATE,
                     stop_sequences=["User:"],
-                    **generation_parameters
+                    **generation_parameters,
                 )["text"]
             message_placeholder.markdown(response)
         st.session_state.messages.append({"role": "assistant", "content": response})
     st.button("Clear chat history", on_click=clear_messages)
-
