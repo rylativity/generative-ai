@@ -1,25 +1,46 @@
 import streamlit as st
 from torch.cuda import is_available as cuda_is_available
-from llm_utils import MODEL_NAMES, AppModel
-
-
-
+from llm_utils import CPU_MODEL_NAMES, GPU_MODEL_NAMES, AppModel
 
 def model_settings(include_gen_params=True):
     with st.sidebar:
-        with st.form("Model Settings"):
-            st.header("Model Settings")
-            st.write(f"CUDA Available: {cuda_is_available()}")
+        if cuda_is_available():
+            st.success("CUDA Available")
+        else:
+            st.warning("CUDA Unavailable")
+        disable_cuda = st.checkbox("Disable CUDA (Being implemented)", key="disable_cuda", disabled=True)
+        if disable_cuda or not cuda_is_available():
+                st.session_state.available_model_names = CPU_MODEL_NAMES
+        else:
+            st.session_state.available_model_names = CPU_MODEL_NAMES + GPU_MODEL_NAMES
+        with st.form("model_selector"):
+            st.header("Model Selector")
+
+            # if cuda_is_available():
+            #     st.write(":white_check_mark: CUDA Available")
+            # else:
+            #     st.write(":no_entry_sign: CUDA Unavailable")
+            # if disable_cuda:
+            #     st.error("CUDA Disabled")
+            # else:
+            #     st.success("CUDA Enabled")
+
             model_name = st.selectbox(
-                "Model", options=MODEL_NAMES, placeholder="Select a model...", index=None
+                "Model", options=st.session_state.available_model_names, placeholder="Select a model...", index=None, key="model_name"
             )
 
             load_model = st.form_submit_button("Load Model")
 
             if load_model:
                 with st.spinner("Loading model"):
-                    st.session_state["model"] = AppModel(model_name=model_name)
-                st.write(f"Model {model_name} loaded successfully")
+                    if disable_cuda:
+                        st.session_state["model"] = AppModel(model_name=model_name, device_map="cpu")
+                    else:
+                        st.session_state["model"] = AppModel(model_name=model_name)
+                    st.write(f"Model {st.session_state.model._model_name} loaded successfully")
+            if "model" in st.session_state:
+                st.caption(f"Using Model {st.session_state.model._model_name}")
+                st.link_button("Model Card", url=f"https://huggingface.co/{st.session_state.model._model_name}")
         
         
         if include_gen_params:
@@ -59,7 +80,3 @@ def model_settings(include_gen_params=True):
                     st.session_state.generation_parameters = params
                 st.header("Active Params")
                 st.json(st.session_state.generation_parameters)
-
-    
-
-
