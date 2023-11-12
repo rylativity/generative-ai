@@ -5,12 +5,13 @@ from langchain.docstore.document import Document
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.llms.huggingface_pipeline import HuggingFacePipeline
 from torch.cuda import is_available as cuda_is_available
-from llm_utils import MODEL_NAMES, AppModel
+from llm_utils import AppModel
 from prompt_templates import SUMMARIZE_PROMPT_TEMPLATE
 from uuid import uuid4
 from components import model_settings
 
-model_settings()
+model_settings(include_gen_params=False)
+st.caption("Generation parameters disabled for this app")
 
 if not "document" in st.session_state:
     st.session_state["document"] = None
@@ -55,7 +56,7 @@ if not "model" in st.session_state:
     pass
 else:
     model = st.session_state.model
-    st.caption(f"Using model {model._model_name}")
+    generation_parameters = st.session_state.generation_parameters
 if not st.session_state["document"] or not "model" in st.session_state:
     st.write("Select a model and add a document to get started...")
 else:
@@ -71,30 +72,32 @@ else:
     if not "model" in st.session_state:
         st.write("Select a model to proceed")
     else:
-        model = st.session_state.model
+        model: AppModel = st.session_state.model
     if processing_option == "Summarization":
         with st.form("Document Processing"):
             submitted = st.form_submit_button("Summarize", use_container_width=True)
         if submitted:
-            prompt = SUMMARIZE_PROMPT_TEMPLATE
-            inputs = {"text":st.session_state["document"].page_content}
-            llm = HuggingFacePipeline(pipeline=model._pipeline)
-            token_length = len(model._tokenizer.encode(st.session_state.document.page_content))
-            if token_length > 1500:
-                chain_type = "map_reduce"
-                splitter = RecursiveCharacterTextSplitter(chunk_size=1000)
-                docs = splitter.split_documents([st.session_state.document])
-            else:
-                chain_type = "stuff"
-                docs = [st.session_state.document]
-            chain = load_summarize_chain(llm, chain_type=chain_type)
-            
-            summary = chain.run(docs)
-            st.write(summary)
+            with st.spinner("Summarizing..."):
+                prompt = SUMMARIZE_PROMPT_TEMPLATE
+                inputs = {"text":st.session_state["document"].page_content}
+                llm = HuggingFacePipeline(pipeline=model._pipeline)
+                token_length = len(model._tokenizer.encode(st.session_state.document.page_content))
+                if token_length > 1500:
+                    chain_type = "map_reduce"
+                    splitter = RecursiveCharacterTextSplitter(chunk_size=1000)
+                    docs = splitter.split_documents([st.session_state.document])
+                else:
+                    chain_type = "stuff"
+                    docs = [st.session_state.document]
+                chain = load_summarize_chain(llm, chain_type=chain_type)
+                
+                summary = chain.run(docs)
+                st.write(summary)
 
     elif processing_option == "Extraction":
         ...
+        st.write("TODO...")
     elif processing_option == "Q&A":
-        ...
+        st.write("TODO...")
 
     

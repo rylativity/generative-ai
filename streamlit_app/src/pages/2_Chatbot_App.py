@@ -10,7 +10,8 @@ model_settings()
 if not "model" in st.session_state:
     st.header("*Load a model to get started*")
 else:
-    model = st.session_state.model
+    model: AppModel = st.session_state.model
+    generation_parameters:dict = st.session_state.generation_parameters
 
     st.title("ChatBot")
     st.caption(f"Using model {model._model_name}")
@@ -40,8 +41,8 @@ else:
                 response = model.run(
                     inputs = {"messages":messages_history_string},
                     prompt_template=CHAT_PROMPT_TEMPLATE,
-                    max_new_tokens=300,
-                    stop_sequences=["User:"]
+                    stop_sequences=["User:"],
+                    **generation_parameters
                 )["text"]
             message_placeholder.markdown(response)
         st.session_state.messages.append({"role": "assistant", "content": response})

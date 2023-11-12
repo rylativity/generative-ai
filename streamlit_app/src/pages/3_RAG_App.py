@@ -13,7 +13,7 @@ from langchain.docstore.document import Document
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from torch.cuda import is_available as cuda_is_available
 
-from llm_utils import MODEL_NAMES, AppModel
+from llm_utils import AppModel
 from prompt_templates import RAG_PROMPT_TEMPLATE
 from components import model_settings
 
@@ -179,7 +179,8 @@ st.title("Retrieval Augmented Generation")
 if not "model" in st.session_state:
     st.header("*Load a model to get started...*")
 else:
-    model = st.session_state.model
+    model: AppModel = st.session_state.model
+    generation_parameters: dict = st.session_state.generation_parameters
     st.caption(f"Found {num_docs} split documents")
     
     st.caption(f"Using model {model._model_name}")
@@ -195,17 +196,19 @@ else:
         submit = st.form_submit_button()
         
         if submit:
-                
-            res = search(query=question)
+
+            with st.spinner("Searching knowledge base..."):
+                res = search(query=question)
             # st.write(res)
-            
-            relevant_documents = res["documents"]
+                relevant_documents = res["documents"]
+                st.caption(f"Retrieved {len(relevant_documents)} chunks (return sources to see chunk content and metadata)")
             context_string = "\n\n".join(relevant_documents)
-            response = model.run(
-                inputs = {"input":question,"context":context_string},
-                prompt_template=RAG_PROMPT_TEMPLATE,
-                max_new_tokens=1000
-            )
+            with st.spinner("Generating response..."):
+                response = model.run(
+                    inputs = {"input":question,"context":context_string},
+                    prompt_template=RAG_PROMPT_TEMPLATE,
+                    **generation_parameters
+                )
             st.header("Answer")
             st.write(response["text"])
 
@@ -219,5 +222,3 @@ else:
                         for k in res:
                             st.header(k.rstrip("s").title())
                             st.write(res[k][i])
-
-    
