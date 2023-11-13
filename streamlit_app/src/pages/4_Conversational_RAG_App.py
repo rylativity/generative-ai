@@ -97,7 +97,7 @@ def upsert_chroma_docs(documents: list[Document], overwrite_existing_source_docs
     )
 
 
-def search(query: str, query_filter: dict = None, n_results=5, max_distance = 0.9):
+def search(query: str, query_filter: dict = None, n_results=5, max_distance = 0.8):
     query_embedding = embedding_function([query])
     results = collection.query(
         query_embeddings=query_embedding, where=query_filter, n_results=n_results
@@ -176,7 +176,10 @@ def store_and_index_html(
     st.rerun()
 
 
-model_settings(default_generation_kwarg_overrides={"max_new_tokens":1000,"repetition_penalty":1.2})
+if "generation_parameters" not in st.session_state:
+    model_settings(default_generation_kwarg_overrides={"max_new_tokens":1000,"repetition_penalty":1.2})
+else:
+    model_settings()
 
 with st.sidebar:
     st.divider()
@@ -241,10 +244,15 @@ else:
     st.divider()
 
     return_sources = st.checkbox("Return Sources?")
-    num_context_document_chunks = st.number_input(
-        "Num RAG Document Chunks", min_value=0, max_value=None, value=5,
-        help="Number of top-matching chunks from the available, chunked documents to add to the prompt context block"
+    max_context_document_chunks = st.number_input(
+        "Max RAG Document Chunks", min_value=0, max_value=None, value=5,
+        help="Max number of top-matching chunks from the available, chunked documents to add to the prompt context block"
     )
+    max_similarity_distance = st.number_input(
+        "Max Similarity Distance", min_value=0.01, max_value=None, value=0.8,
+        help="Maximum L2 distance between query and matching document to consider adding the document to the context (limited by Max Context Document Chunks value). Lower scores indicate a better match."
+    )
+
 
     if "messages" not in st.session_state:
         st.session_state.messages = []
@@ -264,6 +272,7 @@ else:
 
         with st.chat_message("assistant"):
             message_placeholder = st.empty()
+            sources_placeholder = st.empty()
             with st.spinner("..."):
                 ## CONDENSE THE CHAT INPUT 
                 messages_history_string = "\n\n".join(
@@ -282,7 +291,8 @@ else:
 
                 ## FETCH CONTEXT
                 with st.spinner("Searching knowledge base..."):
-                    search_res = search(query=condensed_input, n_results=num_context_document_chunks)
+                    search_res = search(query=condensed_input, n_results=(5 * max_context_document_chunks), max_distance=max_similarity_distance)
+                    search_res = {k:v[:max_context_document_chunks] for k, v in search_res.items()}
                     # st.write(res)
                     relevant_documents = search_res["documents"]
                 context_string = "\n\n".join(relevant_documents)
@@ -303,18 +313,20 @@ else:
                                          **generation_parameters
                                          )["text"]
                 message_placeholder.markdown(response)
+                if return_sources and len(relevant_documents) > 0:
+                    try:
+                        st.divider()
+                        st.header("Sources")
+
+                        for i, doc_id in enumerate(search_res["ids"]):
+                            with st.expander(label=str(i + 1)):
+                                for k in search_res:
+                                    st.header(k.rstrip("s").title())
+                                    st.write(search_res[k][i])
+                    except NameError:
+                        pass
+
             st.session_state.messages.append({"role": "assistant", "content": response})
     st.button("Clear chat history", on_click=clear_messages)
 
-    if return_sources:
-        try:
-            st.divider()
-            st.header("Sources")
-
-            for i, doc_id in enumerate(res["ids"]):
-                with st.expander(label=str(i + 1)):
-                    for k in res:
-                        st.header(k.rstrip("s").title())
-                        st.write(res[k][i])
-        except NameError:
-            pass
+    

@@ -60,7 +60,6 @@ if not "model" in st.session_state:
     pass
 else:
     model = st.session_state.model
-    generation_parameters = st.session_state.generation_parameters
 if not st.session_state["document"] or not "model" in st.session_state:
     st.write("Select a model and add a document to get started...")
 else:
@@ -89,7 +88,7 @@ else:
             with st.spinner("Summarizing..."):
                 prompt = SUMMARIZE_PROMPT_TEMPLATE
                 inputs = {"text": st.session_state["document"].page_content}
-                llm = HuggingFacePipeline(pipeline=model._pipeline)
+                llm = HuggingFacePipeline(pipeline=model._pipeline, model_kwargs={"max_new_tokens":3000})
                 token_length = len(
                     model._tokenizer.encode(st.session_state.document.page_content)
                 )
@@ -100,7 +99,7 @@ else:
                 else:
                     chain_type = "stuff"
                     docs = [st.session_state.document]
-                chain = load_summarize_chain(llm, chain_type=chain_type)
+                chain = load_summarize_chain(llm, chain_type=chain_type, verbose=True)
 
                 summary = chain.run(docs)
                 st.write(summary)
