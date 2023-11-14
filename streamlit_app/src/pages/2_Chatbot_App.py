@@ -4,7 +4,13 @@ from llm_utils import AppModel
 from prompt_templates import CHAT_PROMPT_TEMPLATE
 from components import model_settings
 
-model_settings(default_generation_kwarg_overrides={"max_new_tokens":1000,"repetition_penalty":1.1})
+model_settings(
+    default_generation_kwarg_overrides={
+        "max_new_tokens": 100,
+        "repetition_penalty": 1.1,
+        "decoding_strategy": "sample",
+    }
+)
 
 if not "model" in st.session_state:
     st.header("*Load a model to get started*")

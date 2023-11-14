@@ -7,7 +7,7 @@ services:
       - 8888:8888
     volumes:
       - ./data:/workspace/data
-      - ./notebooks/:/workspace/notebooks/
+      - ./jupyter/notebooks/:/workspace/notebooks/
       - ./.env:/workspace/.env
       - ~/.cache/:/root/.cache/
     deploy:

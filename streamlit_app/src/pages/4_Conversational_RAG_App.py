@@ -14,7 +14,11 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from torch.cuda import is_available as cuda_is_available
 
 from llm_utils import AppModel
-from prompt_templates import RAG_PROMPT_TEMPLATE, CONDENSE_QUESTION_PROMPT_TEMPLATE, CHAT_PROMPT_TEMPLATE
+from prompt_templates import (
+    RAG_PROMPT_TEMPLATE,
+    CONDENSE_QUESTION_PROMPT_TEMPLATE,
+    CHAT_PROMPT_TEMPLATE,
+)
 from components import model_settings
 
 FILES_BASE_DIR = "./uploaded_files/"
@@ -97,14 +101,17 @@ def upsert_chroma_docs(documents: list[Document], overwrite_existing_source_docs
     )
 
 
-def search(query: str, query_filter: dict = None, n_results=5, max_distance = 0.8):
+def search(query: str, query_filter: dict = None, n_results=5, max_distance=0.8):
     query_embedding = embedding_function([query])
     results = collection.query(
         query_embeddings=query_embedding, where=query_filter, n_results=n_results
     )
     results = {k: v[0] for k, v in results.items() if v}
 
-    irrelevant_indices =  sorted([i for i, dist in enumerate(results["distances"]) if dist >= max_distance], reverse=True)
+    irrelevant_indices = sorted(
+        [i for i, dist in enumerate(results["distances"]) if dist >= max_distance],
+        reverse=True,
+    )
     for idx in irrelevant_indices:
         for k in results:
             del results[k][idx]
@@ -177,7 +184,12 @@ def store_and_index_html(
 
 
 if "generation_parameters" not in st.session_state:
-    model_settings(default_generation_kwarg_overrides={"max_new_tokens":1000,"repetition_penalty":1.2})
+    model_settings(
+        default_generation_kwarg_overrides={
+            "max_new_tokens": 1000,
+            "repetition_penalty": 1.2,
+        }
+    )
 else:
     model_settings()
 
@@ -245,14 +257,19 @@ else:
 
     return_sources = st.checkbox("Return Sources?")
     max_context_document_chunks = st.number_input(
-        "Max RAG Document Chunks", min_value=0, max_value=None, value=5,
-        help="Max number of top-matching chunks from the available, chunked documents to add to the prompt context block"
+        "Max RAG Document Chunks",
+        min_value=0,
+        max_value=None,
+        value=5,
+        help="Max number of top-matching chunks from the available, chunked documents to add to the prompt context block",
     )
     max_similarity_distance = st.number_input(
-        "Max Similarity Distance", min_value=0.01, max_value=None, value=0.8,
-        help="Maximum L2 distance between query and matching document to consider adding the document to the context (limited by Max Context Document Chunks value). Lower scores indicate a better match."
+        "Max Similarity Distance",
+        min_value=0.01,
+        max_value=None,
+        value=0.8,
+        help="Maximum L2 distance between query and matching document to consider adding the document to the context (limited by Max Context Document Chunks value). Lower scores indicate a better match.",
     )
-
 
     if "messages" not in st.session_state:
         st.session_state.messages = []
@@ -266,7 +283,7 @@ else:
 
     if prompt := st.chat_input("Message..."):
         st.session_state.messages.append({"role": "user", "content": prompt})
-        
+
         with st.chat_message("user"):
             st.markdown(prompt)
 
@@ -274,25 +291,32 @@ else:
             message_placeholder = st.empty()
             sources_placeholder = st.empty()
             with st.spinner("..."):
-                ## CONDENSE THE CHAT INPUT 
+                ## CONDENSE THE CHAT INPUT
                 messages_history_string = "\n\n".join(
-                            [
-                                f"{message['role'].title()}: {message['content']}"
-                                for message in st.session_state.messages
-                            ]
-                        )
+                    [
+                        f"{message['role'].title()}: {message['content']}"
+                        for message in st.session_state.messages
+                    ]
+                )
                 response = model.run(
-                            inputs={"chat_history": messages_history_string, "input":prompt},
-                            prompt_template=CONDENSE_QUESTION_PROMPT_TEMPLATE,
-                            stop_sequences=["User:"],
-                            **generation_parameters,
+                    inputs={"chat_history": messages_history_string, "input": prompt},
+                    prompt_template=CONDENSE_QUESTION_PROMPT_TEMPLATE,
+                    stop_sequences=["User:"],
+                    **generation_parameters,
                 )
                 condensed_input = response["text"]
 
                 ## FETCH CONTEXT
                 with st.spinner("Searching knowledge base..."):
-                    search_res = search(query=condensed_input, n_results=(5 * max_context_document_chunks), max_distance=max_similarity_distance)
-                    search_res = {k:v[:max_context_document_chunks] for k, v in search_res.items()}
+                    search_res = search(
+                        query=condensed_input,
+                        n_results=(5 * max_context_document_chunks),
+                        max_distance=max_similarity_distance,
+                    )
+                    search_res = {
+                        k: v[:max_context_document_chunks]
+                        for k, v in search_res.items()
+                    }
                     # st.write(res)
                     relevant_documents = search_res["documents"]
                 context_string = "\n\n".join(relevant_documents)
@@ -301,17 +325,18 @@ else:
                 ## RAG PRROMPT CHAT MODEL
                 if relevant_documents:
                     response = model.run(
-                        inputs={"context": context_string, "input":condensed_input},
+                        inputs={"context": context_string, "input": condensed_input},
                         prompt_template=RAG_PROMPT_TEMPLATE,
                         stop_sequences=stop_sequences,
                         **generation_parameters,
                     )["text"]
                 else:
-                    response = model.run(inputs={"messages":messages_history_string},
-                                         prompt_template=CHAT_PROMPT_TEMPLATE,
-                                         stop_sequences=stop_sequences,
-                                         **generation_parameters
-                                         )["text"]
+                    response = model.run(
+                        inputs={"messages": messages_history_string},
+                        prompt_template=CHAT_PROMPT_TEMPLATE,
+                        stop_sequences=stop_sequences,
+                        **generation_parameters,
+                    )["text"]
                 message_placeholder.markdown(response)
                 if return_sources and len(relevant_documents) > 0:
                     try:
@@ -328,5 +353,3 @@ else:
 
             st.session_state.messages.append({"role": "assistant", "content": response})
     st.button("Clear chat history", on_click=clear_messages)
-
-    

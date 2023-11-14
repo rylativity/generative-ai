@@ -88,7 +88,9 @@ else:
             with st.spinner("Summarizing..."):
                 prompt = SUMMARIZE_PROMPT_TEMPLATE
                 inputs = {"text": st.session_state["document"].page_content}
-                llm = HuggingFacePipeline(pipeline=model._pipeline, model_kwargs={"max_new_tokens":3000})
+                llm = HuggingFacePipeline(
+                    pipeline=model._pipeline, model_kwargs={"max_new_tokens": 3000}
+                )
                 token_length = len(
                     model._tokenizer.encode(st.session_state.document.page_content)
                 )

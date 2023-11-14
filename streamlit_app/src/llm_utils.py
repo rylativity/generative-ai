@@ -11,13 +11,14 @@ log = getLogger(__name__)
 
 CPU_MODEL_NAMES = [
     "PY007/TinyLlama-1.1B-Chat-v0.3",
-    # "TheBloke/CollectiveCognition-v1.1-Mistral-7B-GPTQ",
+    # "TheBloke/Llama-2-13B-chat-GGML"
 ]
 
 GPU_MODEL_NAMES = [
     "TheBloke/samantha-mistral-7B-GPTQ",
     "TheBloke/Llama-2-7B-chat-GPTQ",
     "TheBloke/Llama-2-13B-chat-GPTQ",
+    # "TheBloke/CollectiveCognition-v1.1-Mistral-7B-GPTQ",
     "TheBloke/Airoboros-L2-13B-3.1.1-GPTQ",
     "TheBloke/Mythalion-13B-GPTQ",
     "TheBloke/Athena-v3-GPTQ",

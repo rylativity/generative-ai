@@ -46,7 +46,7 @@ Summary:""",
 )
 
 RAG_PROMPT_TEMPLATE = PromptTemplate(
-template="""Respond accurately to the user based only on the following context. If the context does not contain the answer, you can ignore it. Always follow up with the user at the end of your response. Be informative, but avoid being overly verbose:
+    template="""Respond accurately to the user based only on the following context. If the context does not contain the answer, you can ignore it. Always follow up with the user at the end of your response. Be informative, but avoid being overly verbose:
 {context}
 
 User: {input}[/INST]
@@ -56,11 +56,12 @@ Assistant:""",
 )
 
 CONDENSE_QUESTION_PROMPT_TEMPLATE = PromptTemplate(
-template="""Given the following conversation and a follow up question, rephrase the follow up question to be a standalone question, in its original language.
+    template="""Given the following conversation and a follow up question, rephrase the follow up question to be a standalone question, in its original language.
 
 Chat History:
 {chat_history}
 Follow Up Input: {input}
 Standalone question:
-""", input_variables=["chat_history","input"]
+""",
+    input_variables=["chat_history", "input"],
 )

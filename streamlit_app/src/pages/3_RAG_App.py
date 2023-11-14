@@ -171,7 +171,12 @@ def store_and_index_html(
     st.rerun()
 
 
-model_settings(default_generation_kwarg_overrides={"max_new_tokens":1000,"repetition_penalty":1.2})
+model_settings(
+    default_generation_kwarg_overrides={
+        "max_new_tokens": 1000,
+        "repetition_penalty": 1.2,
+    }
+)
 
 with st.sidebar:
     st.divider()
@@ -238,8 +243,11 @@ else:
     with st.form("qa_form"):
         return_sources = st.checkbox("Return Sources?")
         num_context_document_chunks = st.number_input(
-            "Num RAG Document Chunks", min_value=0, max_value=None, value=5,
-            help="Number of top-matching chunks from the available, chunked documents to add to the prompt context block"
+            "Num RAG Document Chunks",
+            min_value=0,
+            max_value=None,
+            value=5,
+            help="Number of top-matching chunks from the available, chunked documents to add to the prompt context block",
         )
         question = st.text_area(
             "Enter your question...", value="What is langchain?", key="question"

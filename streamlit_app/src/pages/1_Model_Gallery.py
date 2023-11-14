@@ -10,7 +10,9 @@ from components import model_settings
 model_settings()
 # Model is accessible from st.session_state.model, and generation parameters are accessible from st.session_state.generation_parameters
 
-if "model" in st.session_state:
+if not "model" in st.session_state:
+    st.header("*Load a model to get started*")
+else:
     model: AppModel = st.session_state.model
     generation_parameters: dict = st.session_state.generation_parameters
 
