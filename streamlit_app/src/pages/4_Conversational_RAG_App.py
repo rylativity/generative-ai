@@ -256,6 +256,9 @@ else:
     st.divider()
 
     return_sources = st.checkbox("Return Sources?")
+    return_intermediate_question = st.checkbox(
+        "Return Intermediate (Condensed) Questions"
+    )
     max_context_document_chunks = st.number_input(
         "Max RAG Document Chunks",
         min_value=0,
@@ -270,6 +273,7 @@ else:
         value=0.8,
         help="Maximum L2 distance between query and matching document to consider adding the document to the context (limited by Max Context Document Chunks value). Lower scores indicate a better match.",
     )
+    
 
     if "messages" not in st.session_state:
         st.session_state.messages = []
@@ -288,6 +292,7 @@ else:
             st.markdown(prompt)
 
         with st.chat_message("assistant"):
+            condensed_input_placeholder = st.empty()
             message_placeholder = st.empty()
             sources_placeholder = st.empty()
             with st.spinner("..."):
@@ -301,10 +306,12 @@ else:
                 response = model.run(
                     inputs={"chat_history": messages_history_string, "input": prompt},
                     prompt_template=CONDENSE_QUESTION_PROMPT_TEMPLATE,
-                    stop_sequences=["User:"],
+                    # stop_sequences=["User:"],
                     **generation_parameters,
                 )
                 condensed_input = response["text"]
+                if return_intermediate_question:
+                    condensed_input_placeholder.caption(f"Question rephrased to: {condensed_input}")
 
                 ## FETCH CONTEXT
                 with st.spinner("Searching knowledge base..."):
@@ -338,6 +345,7 @@ else:
                         **generation_parameters,
                     )["text"]
                 message_placeholder.markdown(response)
+
                 if return_sources and len(relevant_documents) > 0:
                     try:
                         st.divider()

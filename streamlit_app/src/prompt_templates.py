@@ -35,7 +35,7 @@ SUMMARIZE_PROMPT_TEMPLATE = PromptTemplate(
     template="""<s>[INST]
 <<SYS>>
 You are a detail-oriented assistant. The answers you provide are always grounded in the source text. Be as accurate as possible, and do not make up information.
-<</SYS>>
+
 
 Summarize the following text.
 
@@ -46,8 +46,14 @@ Summary:""",
 )
 
 RAG_PROMPT_TEMPLATE = PromptTemplate(
-    template="""Respond accurately to the user based only on the following context. If the context does not contain the answer, you can ignore it. Always follow up with the user at the end of your response. Be informative, but avoid being overly verbose:
-{context}
+    template="""<s>[INST]
+<<SYS>>
+You are a helpful and honest assistant who provides accurate responses grounded in context. Always follow up with the user to see how else you can help them.
+<</SYS>>
+
+Respond accurately to the user based only on the following context. If the context does not contain the information needed to answer the question, say so.
+
+Context: {context}
 
 User: {input}[/INST]
 
@@ -56,12 +62,19 @@ Assistant:""",
 )
 
 CONDENSE_QUESTION_PROMPT_TEMPLATE = PromptTemplate(
-    template="""Given the following conversation and a follow up question, rephrase the follow up question to be a standalone question, in its original language.
+    template="""<s>[INST]
+<<SYS>>
+You are a helpful assistant.
+<</SYS>>
+
+Given the following chat history and a new input from the user, rephrase the input to be a standalone question.
 
 Chat History:
 {chat_history}
-Follow Up Input: {input}
-Standalone question:
-""",
+
+
+New Input: {input}[/INST]
+
+Standalone Question:""",
     input_variables=["chat_history", "input"],
 )
