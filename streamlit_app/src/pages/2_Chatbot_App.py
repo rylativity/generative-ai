@@ -1,6 +1,6 @@
 import streamlit as st
 
-from llm_utils import AppModel
+from models import AppModel
 from prompt_templates import CHAT_PROMPT_TEMPLATE
 from components import model_settings
 

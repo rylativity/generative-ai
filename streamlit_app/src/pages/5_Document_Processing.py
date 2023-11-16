@@ -5,7 +5,7 @@ from langchain.docstore.document import Document
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.llms.huggingface_pipeline import HuggingFacePipeline
 from torch.cuda import is_available as cuda_is_available
-from llm_utils import AppModel
+from models import AppModel
 from prompt_templates import SUMMARIZE_PROMPT_TEMPLATE
 from uuid import uuid4
 from components import model_settings

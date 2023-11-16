@@ -13,7 +13,7 @@ from langchain.docstore.document import Document
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from torch.cuda import is_available as cuda_is_available
 
-from llm_utils import AppModel
+from models import AppModel
 from prompt_templates import RAG_PROMPT_TEMPLATE
 from components import model_settings
 
@@ -270,6 +270,7 @@ else:
                     prompt_template=RAG_PROMPT_TEMPLATE,
                     **generation_parameters,
                 )
+            st.write(generation_parameters)
             st.header("Answer")
             st.write(response["text"])
 

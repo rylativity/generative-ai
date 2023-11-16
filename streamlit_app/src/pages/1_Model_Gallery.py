@@ -1,5 +1,5 @@
 import streamlit as st
-from llm_utils import AppModel
+from models import AppModel
 from prompt_templates import LLAMA2_DEFAULT
 from langchain.prompts import PromptTemplate
 from torch.cuda import is_available as cuda_is_available
