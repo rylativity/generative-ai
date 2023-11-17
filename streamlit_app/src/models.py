@@ -99,7 +99,6 @@ class AppModel:
             else:
                 pass
 
-            
             self._model = AutoModelForCausalLM.from_pretrained(
                 self._model_name,
                 device_map=self._device_map,
@@ -112,7 +111,7 @@ class AppModel:
 
             hf_hub_download(model_name, filename=model_file)
 
-            self._model = C_AutoModelForCausalLM.from_pretrained(model_name, model_file=self._model_file, model_type="llama", 
+            self._model = C_AutoModelForCausalLM.from_pretrained(model_name, model_file=self._model_file, model_type="llama", hf=True 
                                                             #    gpu_layers=0
                                                                )
         try:
@@ -127,9 +126,9 @@ class AppModel:
                 device_map=device_map,
         )
 
-        # self._pipeline = pipeline(
-        #     task="text-generation", model=self._model, tokenizer=self._tokenizer
-        # )
+        self._pipeline = pipeline(
+            task="text-generation", model=self._model, tokenizer=self._tokenizer
+        )
 
     def run(
         self,
