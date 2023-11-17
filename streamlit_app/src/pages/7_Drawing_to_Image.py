@@ -46,8 +46,8 @@ with st.form("image_generation_form"):
     )
 
     modifier_prompt = st.text_input("Modifier Prompt")
-    num_inference_steps = st.number_input("Num Inference Steps", min_value=1, max_value=None, value=10)
-    image_guidance_scale = st.number_input("Image Guidance Scale", min_value=0.1, max_value=None, value=1.0)
+    num_inference_steps = st.number_input("Num Inference Steps", min_value=1, max_value=None, value=50)
+    image_guidance_scale = st.number_input("Image Guidance Scale", min_value=0.1, max_value=None, value=1.75)
 
     submitted = st.form_submit_button()
     if submitted:
@@ -56,7 +56,9 @@ with st.form("image_generation_form"):
         else:
             input_img = PIL.Image.fromarray(canvas_result.image_data)
             input_img = input_img.convert("RGB")
-            prompt = f"{modifier_prompt}\nConvert the canvas drawing into a vivid, realistic picture. Add color when needed."
+            prompt = f"Convert the canvas drawing into a realistic, natural colored picture."
+            if modifier_prompt:
+                prompt += f"Original image info: {modifier_prompt}"
             st.session_state.images = st.session_state.diffuser_model(prompt, image=input_img, num_inference_steps=num_inference_steps, image_guidance_scale=image_guidance_scale).images
         
 
