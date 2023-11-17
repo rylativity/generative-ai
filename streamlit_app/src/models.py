@@ -158,7 +158,6 @@ class AppModel:
             "repetition_penalty":repetition_penalty,
             "num_beams":num_beams,
             "num_return_sequences":num_return_sequences,
-            "stop_sequences":stop_sequences
         }
         if self._model_type == ModelType.GGUF:
             generation_config["stop"] = generation_config["stop_sequences"]
@@ -172,9 +171,6 @@ class AppModel:
                 )
             else:
                 input_tensor = self._tokenizer.encode(prompt, return_tensors="pt")
-
-            
-            generation_config = {k:v for k,v in generation_config.items() if k in self._model.config.__dict__}
             
             output_tensor = self._model.generate(
                 input_tensor,
@@ -182,15 +178,15 @@ class AppModel:
             )
 
             generated_tensor = output_tensor[:, input_tensor.shape[1] :]
+            output_token_length = len(generated_tensor[0])
             ## The batch_decode call below removes the input tokens
             generated_text = self._tokenizer.batch_decode(generated_tensor)[0]
 
-            for sequence in stop_sequences:
-                generated_text = generated_text.split(sequence)[0]
-            for token in remove_tokens:
-                generated_text = generated_text.replace(token, "")
-            generated_text = generated_text.strip('" \n')
-            output_token_length = len(generated_tensor[0])
+        for sequence in stop_sequences:
+            generated_text = generated_text.split(sequence)[0]
+        for token in remove_tokens:
+            generated_text = generated_text.replace(token, "")
+        generated_text = generated_text.strip('" \n')
 
         output = {
             "text": generated_text,

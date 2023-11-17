@@ -62,7 +62,8 @@ def model_settings(include_gen_params=True,
         if include_gen_params:
             if default_generation_kwarg_overrides:
                     for k, v in default_generation_kwarg_overrides.items():
-                        st.session_state[k] = v
+                        if not k in st.session_state:
+                            st.session_state[k] = v
             do_sample = st.radio(
                 "Decoding Strategy",
                 options=[False, True],
