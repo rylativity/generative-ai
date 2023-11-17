@@ -273,7 +273,6 @@ else:
         value=2.0,
         help="Maximum L2 distance between query and matching document to consider adding the document to the context (limited by Max Context Document Chunks value). Lower scores indicate a better match.",
     )
-    
 
     if "messages" not in st.session_state:
         st.session_state.messages = []
@@ -311,7 +310,9 @@ else:
                 )
                 condensed_input = response["text"]
                 if return_intermediate_question:
-                    condensed_input_placeholder.caption(f"Question rephrased to: {condensed_input}")
+                    condensed_input_placeholder.caption(
+                        f"Question rephrased to: {condensed_input}"
+                    )
 
                 ## FETCH CONTEXT
                 with st.spinner("Searching knowledge base..."):

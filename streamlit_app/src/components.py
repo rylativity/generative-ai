@@ -1,13 +1,13 @@
 import streamlit as st
 from torch.cuda import is_available as cuda_is_available
-from llm_utils import CPU_MODEL_NAMES, GPU_MODEL_NAMES, AppModel
+from models import CPU_MODELS, GPU_MODELS, AppModel
 
+MODEL_CONFIGS = CPU_MODELS + GPU_MODELS
 
-def model_settings(
-    include_gen_params=True,
-    default_generation_kwarg_overrides={},
-    #    default_model_kwarg_overrides = {}
-):
+def model_settings(include_gen_params=True, 
+                   default_generation_kwarg_overrides={}, 
+                #    default_model_kwarg_overrides = {}
+                   ):
     with st.sidebar:
         if cuda_is_available():
             st.success("CUDA Available")
@@ -15,12 +15,12 @@ def model_settings(
             st.warning("CUDA Unavailable")
 
         device_map = st.selectbox(
-            "Device Map", options=["auto", "cpu"]  # , disabled=True
+            "Device Map", options=["auto", "cpu"] #, disabled=True
         )
         if device_map == "cpu" or not cuda_is_available():
-            st.session_state.available_model_names = CPU_MODEL_NAMES
+            st.session_state.available_model_names = [m["model_name"] for m in CPU_MODELS]
         else:
-            st.session_state.available_model_names = CPU_MODEL_NAMES + GPU_MODEL_NAMES
+            st.session_state.available_model_names = [m["model_name"] for m in CPU_MODELS + GPU_MODELS]
         with st.form("model_selector"):
             st.header("Model Selector")
 
@@ -44,9 +44,10 @@ def model_settings(
             load_model = st.form_submit_button("Load Model")
 
             if load_model:
+                model_config = [m for m in MODEL_CONFIGS if m["model_name"] == model_name][0]
                 with st.spinner("Loading model"):
                     st.session_state["model"] = AppModel(
-                        model_name=model_name, device_map=device_map
+                        **model_config,device_map=device_map
                     )
                     st.write(
                         f"Model {st.session_state.model._model_name} loaded successfully"
@@ -60,61 +61,39 @@ def model_settings(
 
         if include_gen_params:
             if default_generation_kwarg_overrides:
-                for k, v in default_generation_kwarg_overrides.items():
-                    st.session_state[k] = v
+                    for k, v in default_generation_kwarg_overrides.items():
+                        st.session_state[k] = v
             do_sample = st.radio(
                 "Decoding Strategy",
                 options=[False, True],
                 format_func=lambda x: "Greedy" if x == False else "Sample",
-                key="do_sample",
+                key="do_sample"
             )
             with st.form("Generation Parameters"):
                 st.header("Generation Parameters")
 
                 st.number_input(
-                    "Min New Tokens",
-                    min_value=1,
-                    max_value=None,
-                    value=1,
-                    key="min_new_tokens",
+                    "Min New Tokens", min_value=1, max_value=None, value=1, key="min_new_tokens"
                 )
                 st.number_input(
-                    "Max New Tokens",
-                    min_value=1,
-                    max_value=None,
-                    value=25,
-                    key="max_new_tokens",
+                    "Max New Tokens", min_value=1, max_value=None, value=25, key="max_new_tokens"
                 )
                 st.number_input(
-                    "Repetition Penalty",
-                    min_value=1.0,
-                    max_value=2.0,
-                    value=1.0,
-                    key="repetition_penalty",
+                    "Repetition Penalty", min_value=1.0, max_value=2.0, value=1.0, key="repetition_penalty"
                 )
 
                 if do_sample:
                     st.number_input(
-                        "Temperature",
-                        min_value=0.0,
-                        max_value=1.4,
-                        value=0.5,
-                        key="temperature",
+                        "Temperature", min_value=0.0, max_value=1.4, value=0.5, key="temperature"
                     )
                     st.number_input(
-                        "Number of Beams",
-                        min_value=1,
-                        max_value=None,
-                        value=1,
-                        key="num_beams",
+                        "Number of Beams", min_value=1, max_value=None, value=1, key="num_beams"
                     )
                     st.number_input(
-                        "Num Return Sequences",
-                        min_value=1,
-                        max_value=None,
-                        value=1,
-                        key="num_return_sequences",
+                        "Num Return Sequences", min_value=1, max_value=None, value=1, key="num_return_sequences"
                     )
+                
+                
 
                 params = {
                     "min_new_tokens": st.session_state.min_new_tokens,
@@ -138,6 +117,7 @@ def model_settings(
 
                 if not "generation_parameters" in st.session_state:
                     st.session_state.generation_parameters = params
+                
 
                 st.header("Active Params")
                 st.json(st.session_state.generation_parameters)
