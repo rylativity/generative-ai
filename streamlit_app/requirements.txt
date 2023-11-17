@@ -17,3 +17,4 @@ pdfminer.six
 pytesseract
 diffusers
 python-dotenv
+streamlit-drawable-canvas
