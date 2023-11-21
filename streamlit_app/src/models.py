@@ -31,9 +31,19 @@ CPU_MODELS = [
         "model_type": ModelType.GGUF,
         "tokenizer_model_name":"TheBloke/Llama-2-7B-GPTQ"
     },
+    {
+        "model_name": "TheBloke/Mistral-7B-OpenOrca-GGUF",
+        "model_file": "mistral-7b-openorca.Q4_K_M.gguf",
+        "model_type": ModelType.GGUF,
+        "tokenizer_model_name":"TheBloke/Mistral-7B-OpenOrca-GPTQ"
+    }
 ]
 
 GPU_MODELS = [
+    {
+        "model_name": "TheBloke/Mistral-7B-OpenOrca-GPTQ",
+         "model_type": ModelType.GPTQ
+    },
     {
         "model_name": "TheBloke/samantha-mistral-7B-GPTQ",
          "model_type": ModelType.GPTQ
