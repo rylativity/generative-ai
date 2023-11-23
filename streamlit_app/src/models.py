@@ -167,9 +167,10 @@ class AppModel:
             "repetition_penalty":repetition_penalty,
             "num_beams":num_beams,
             "num_return_sequences":num_return_sequences,
+            # "stop_sequences":stop_sequences
         }
         if self._model_type == ModelType.GGUF:
-            generation_config["stop"] = generation_config["stop_sequences"]
+            # generation_config["stop"] = generation_config["stop_sequences"]
             generation_config = {k:v for k,v in generation_config.items() if k in self._model.config.__dict__}
             generated_text = self._model(prompt, **generation_config)
             output_token_length = len(self._model.tokenize(generated_text))
