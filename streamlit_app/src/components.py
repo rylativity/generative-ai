@@ -15,14 +15,18 @@ def model_settings(include_gen_params=True,
             st.warning("CUDA Unavailable")
 
         device_map = st.selectbox(
-            "Device Map", options=["auto", "cpu"] #, disabled=True
+            "Device Map", 
+            options=["auto", "cpu"], 
+            help="'auto' will use GPU if available, while 'cpu' will always use CPU for inference, even if a GPU is available"
+            # disabled=True
         )
         if device_map == "cpu" or not cuda_is_available():
             st.session_state.available_model_names = [m["model_name"] for m in CPU_MODELS]
         else:
             st.session_state.available_model_names = [m["model_name"] for m in CPU_MODELS + GPU_MODELS]
         with st.form("model_selector"):
-            st.header("Model Selector")
+            st.header("Model Selector",
+                      help="Select a Large Language Model to use. (Available options depend on device map. GPTQ models can only run on GPU)")
 
             # if cuda_is_available():
             #     st.write(":white_check_mark: CUDA Available")
@@ -68,30 +72,38 @@ def model_settings(include_gen_params=True,
                 "Decoding Strategy",
                 options=[False, True],
                 format_func=lambda x: "Greedy" if x == False else "Sample",
-                key="do_sample"
+                key="do_sample",
+                help="Token decoding strategy. 'Greedy' will select the most likely token, while 'sample' will sample from a set of 'k' most likely tokens"
             )
             with st.form("Generation Parameters"):
-                st.header("Generation Parameters")
+                st.header("Generation Parameters",
+                          help="Parameters that control text generation. For detailed parameter information, see https://huggingface.co/docs/transformers/v4.35.2/en/main_classes/text_generation#transformers.GenerationConfig")
 
                 st.number_input(
-                    "Min New Tokens", min_value=1, max_value=None, value=1, key="min_new_tokens"
+                    "Min New Tokens", min_value=1, max_value=None, value=1, key="min_new_tokens",
+                    help="Minimum number of output tokens in generated response. (Applies to both greedy and sample decoding)"
                 )
                 st.number_input(
-                    "Max New Tokens", min_value=1, max_value=None, value=25, key="max_new_tokens"
+                    "Max New Tokens", min_value=1, max_value=None, value=25, key="max_new_tokens",
+                    help="Maximum number of output tokens in generated response. (Applies to both greedy and sample decoding)"
                 )
                 st.number_input(
-                    "Repetition Penalty", min_value=1.0, max_value=2.0, value=1.0, key="repetition_penalty"
+                    "Repetition Penalty", min_value=1.0, max_value=2.0, value=1.0, key="repetition_penalty",
+                    help="Penalization factor for repeated tokens. (Applies to both greedy and sample decoding)"
                 )
 
                 if do_sample:
                     st.number_input(
-                        "Temperature", min_value=0.0, max_value=1.4, value=0.5, key="temperature"
+                        "Temperature", min_value=0.0, max_value=1.4, value=0.5, key="temperature",
+                        help="Normalization factor for token probabilities. Higher numbers = greater normalization = greater likelihood of selecting less-likely tokens = greater 'creativity' factor. (Applies to only sample decoding)"
                     )
                     st.number_input(
-                        "Number of Beams", min_value=1, max_value=None, value=1, key="num_beams"
+                        "Number of Beams", min_value=1, max_value=None, value=1, key="num_beams",
+                        help="Number of token generation pathways to take at each generation step. (Applies to only sample decoding)"
                     )
                     st.number_input(
-                        "Num Return Sequences", min_value=1, max_value=None, value=1, key="num_return_sequences"
+                        "Num Return Sequences", min_value=1, max_value=None, value=1, key="num_return_sequences",
+                        help="Number of candidate output sequences to return in response to the prompt. (Applies to only sample decoding)"
                     )
                 
                 
