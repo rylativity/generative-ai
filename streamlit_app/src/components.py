@@ -1,8 +1,15 @@
 import streamlit as st
+import gc
 from torch.cuda import is_available as cuda_is_available
 from models import CPU_MODELS, GPU_MODELS, AppModel
 
 MODEL_CONFIGS = CPU_MODELS + GPU_MODELS
+
+def unload_model():
+    if "model" in st.session_state:
+        st.session_state.model=None
+        gc.collect()
+        del st.session_state["model"]
 
 def model_settings(include_gen_params=True, 
                    default_generation_kwarg_overrides={}, 
@@ -48,6 +55,7 @@ def model_settings(include_gen_params=True,
             load_model = st.form_submit_button("Load Model")
 
             if load_model:
+                unload_model()
                 model_config = [m for m in MODEL_CONFIGS if m["model_name"] == model_name][0]
                 with st.spinner("Loading model"):
                     st.session_state["model"] = AppModel(
@@ -62,6 +70,9 @@ def model_settings(include_gen_params=True,
                     "Model Card",
                     url=f"https://huggingface.co/{st.session_state.model._model_name}",
                 )
+        if st.button("Unload Model"):
+                unload_model()
+                st.rerun()
 
         if include_gen_params:
             if default_generation_kwarg_overrides:
@@ -134,3 +145,5 @@ def model_settings(include_gen_params=True,
 
                 st.header("Active Params")
                 st.json(st.session_state.generation_parameters)
+
+
