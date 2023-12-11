@@ -3,19 +3,23 @@ from streamlit_drawable_canvas import st_canvas
 from diffusers import StableDiffusionInstructPix2PixPipeline, EulerAncestralDiscreteScheduler
 from torch.cuda import is_available as cuda_is_available
 from torch import float16
+from components import unload_model
 
 import PIL
 import requests
 
 if "diffuser_model" not in st.session_state:
-    st.session_state.diffuser_model = StableDiffusionInstructPix2PixPipeline.from_pretrained(
-        pretrained_model_name_or_path="timbrooks/instruct-pix2pix",
-        torch_dtype=float16,
-        use_safetensors=True,
-    )
-    if cuda_is_available:
-        st.session_state.diffuser_model.to("cuda")
-    st.session_state.diffuser_model.scheduler = EulerAncestralDiscreteScheduler.from_config(st.session_state.diffuser_model.scheduler.config)
+    unload_model()
+    with st.spinner("Loading Diffusion Model..."):
+        st.session_state.diffuser_model = StableDiffusionInstructPix2PixPipeline.from_pretrained(
+            pretrained_model_name_or_path="timbrooks/instruct-pix2pix",
+            torch_dtype=float16,
+            use_safetensors=True,
+        )
+        if cuda_is_available:
+            st.session_state.diffuser_model.to("cuda")
+        st.session_state.diffuser_model.scheduler = EulerAncestralDiscreteScheduler.from_config(st.session_state.diffuser_model.scheduler.config)
+    st.caption("Diffusion model loaded successfully")
 
 
 drawing_mode = st.sidebar.selectbox(

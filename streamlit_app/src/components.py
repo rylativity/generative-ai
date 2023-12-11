@@ -10,7 +10,11 @@ def unload_model():
         st.session_state.model=None
         gc.collect()
         del st.session_state["model"]
-
+    if "diffuser_model" in st.session_state:
+        st.session_state.diffuser_model=None
+        gc.collect()
+        del st.session_state["diffuser_model"]
+        
 def model_settings(include_gen_params=True, 
                    default_generation_kwarg_overrides={}, 
                 #    default_model_kwarg_overrides = {}
