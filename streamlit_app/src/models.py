@@ -103,42 +103,47 @@ class AppModel:
         self._model_name = model_name
         self._device_map = device_map
         self._model_type = model_type
-        if model_type in [ModelType.GPTQ, ModelType.OTHER]:
-            if model_file:
-                self.model_file = model_file
-            else:
-                pass
+        if self._model_type in [ModelType.GPTQ, ModelType.OTHER]:
+            # if model_file:
+            #     self._model_file = model_file
+            # else:
+            #     pass
 
             self._model = AutoModelForCausalLM.from_pretrained(
                 self._model_name,
                 device_map=self._device_map,
             )
         
-        elif model_type in [ModelType.GGUF]:
+        elif self._model_type in [ModelType.GGUF]:
             if not model_file:
                 raise ValueError("Must provide model_file if using GGUF model")
             self._model_file = model_file
 
-            hf_hub_download(model_name, filename=model_file)
+            hf_hub_download(self._model_name, filename=self._model_file)
 
-            self._model = C_AutoModelForCausalLM.from_pretrained(model_name, model_file=self._model_file, model_type="llama", hf=True 
-                                                            #    gpu_layers=0
-                                                               )
+            self._model = C_AutoModelForCausalLM.from_pretrained(self._model_name, model_file=self._model_file, model_type="llama", gpu_layers=0,
+                                          # max_new_tokens = 1000,
+                                       context_length = 4000
+                                          )
+        else:
+            raise Exception(f"No AppModel interface implemented for model type {self._model_type}")
+        
         try:
             exllama_set_max_input_length(self._model, 4096)
         except (AttributeError, ValueError):
             pass
         
         if not tokenizer_model_name:
-            tokenizer_model_name = model_name
+            tokenizer_model_name = self._model_name
         self._tokenizer = AutoTokenizer.from_pretrained(
                 tokenizer_model_name,
                 device_map=device_map,
         )
 
-        self._pipeline = pipeline(
-            task="text-generation", model=self._model, tokenizer=self._tokenizer
-        )
+        ## The below breaks with GGUF Model
+        # self._pipeline = pipeline(
+        #     task="text-generation", model=self._model, tokenizer=self._tokenizer
+        # )
 
     def run(
         self,
@@ -171,8 +176,11 @@ class AppModel:
         }
         if self._model_type == ModelType.GGUF:
             # generation_config["stop"] = generation_config["stop_sequences"]
-            generation_config = {k:v for k,v in generation_config.items() if k in self._model.config.__dict__}
-            generated_text = self._model(prompt, **generation_config)
+            # generation_config = {k:v for k,v in generation_config.items() if k in self._model.config.__dict__}
+            generated_text = self._model(
+                prompt, 
+                # **generation_config
+                )
             output_token_length = len(self._model.tokenize(generated_text))
         else:
             if self._device_map == "auto" and cuda_is_available():

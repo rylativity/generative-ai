@@ -3,12 +3,11 @@ transformers[agents]
 sentence-transformers
 langchain
 ctransformers
+accelerate
 llama-cpp-python
 auto-gptq
 optimum
 chromadb-client
-# opentelemetry-api
-# opentelemetry-sdk
 opentelemetry-exporter-otlp
 unstructured[all-docs]
 python-magic

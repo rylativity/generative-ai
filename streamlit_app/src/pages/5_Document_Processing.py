@@ -4,7 +4,7 @@ from langchain.document_loaders import UnstructuredURLLoader, UnstructuredPDFLoa
 from langchain.docstore.document import Document
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.llms.huggingface_pipeline import HuggingFacePipeline
-from torch.cuda import is_available as cuda_is_available
+from transformers import pipeline
 from models import AppModel
 from prompt_templates import SUMMARIZE_PROMPT_TEMPLATE
 from uuid import uuid4
@@ -89,7 +89,9 @@ else:
                 prompt = SUMMARIZE_PROMPT_TEMPLATE
                 inputs = {"text": st.session_state["document"].page_content}
                 llm = HuggingFacePipeline(
-                    pipeline=model._pipeline
+                    pipeline=pipeline(
+                        task="text-generation", model=model._model, tokenizer=model._tokenizer
+                    )
                 )
                 token_length = len(
                     model._tokenizer.encode(st.session_state.document.page_content)

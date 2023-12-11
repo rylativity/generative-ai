@@ -15,6 +15,7 @@ def model_settings(include_gen_params=True,
                    default_generation_kwarg_overrides={}, 
                 #    default_model_kwarg_overrides = {}
                    ):
+    
     with st.sidebar:
         if cuda_is_available():
             st.success("CUDA Available")
