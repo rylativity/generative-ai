@@ -42,17 +42,26 @@ services:
       timeout: 30s
       retries: 5
       start_period: 30s
-  
-  streamlit:
-    build: ./streamlit_app/
-    environment:
-      - CHROMADB_HOST=chroma
-      - CHROMADB_PORT=8000
+
+  vue:
+    build: ./frontend/
     ports:
-      - 8501:8501
-    volumes:
-      - ./streamlit_app/:/app/
-      - ~/.cache/:/root/.cache/
+      - 3000:3000
+    restart: "always"
+    # healthcheck:
+    #   test: ["CMD", "curl","--fail","localhost:3000/health"]
+    #   interval: 30s
+    #   retries: 3
+  fastapi:
+    build: 
+      context: ./fastapi
+      dockerfile: Dockerfile
+    ports: 
+      - 5000:5000
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:5000/api/hello']
+      start_period: 7s
+    restart: always
     deploy:
       resources:
         reservations:
@@ -60,6 +69,24 @@ services:
             - driver: nvidia
               count: 1
               capabilities: [gpu]
+  
+  # streamlit:
+  #   build: ./streamlit_app/
+  #   environment:
+  #     - CHROMADB_HOST=chroma
+  #     - CHROMADB_PORT=8000
+  #   ports:
+  #     - 8501:8501
+  #   volumes:
+  #     - ./streamlit_app/:/app/
+  #     - ~/.cache/:/root/.cache/
+  #   deploy:
+  #     resources:
+  #       reservations:
+  #         devices:
+  #           - driver: nvidia
+  #             count: 1
+  #             capabilities: [gpu]
 
 volumes:
   chroma-data:

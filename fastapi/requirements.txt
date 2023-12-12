@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+pyjwt
+cryptography
+transformers[torch]
+ctransformers
+langchain
+auto-gptq
