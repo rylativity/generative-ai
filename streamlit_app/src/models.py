@@ -74,19 +74,19 @@ GPU_MODELS = [
     },
     {
         "model_name": "TheBloke/Mythalion-13B-GPTQ",
-         "model_type": ModelType.GPTQ
+        "model_type": ModelType.GPTQ
     },
-    # {
-    #     "model_name": "TheBloke/stable-vicuna-13B-GPTQ",
-    #      "model_type": ModelType.GPTQ
-    # },
+    {
+        "model_name": "TheBloke/vicuna-13B-v1.5-16K-GPTQ",
+        "model_type": ModelType.GPTQ
+    },
     {
         "model_name": "TheBloke/Athena-v3-GPTQ",
-         "model_type": ModelType.GPTQ
+        "model_type": ModelType.GPTQ
     },
     {
         "model_name": "TheBloke/MXLewd-L2-20B-GPTQ",
-         "model_type": ModelType.GPTQ
+        "model_type": ModelType.GPTQ
     },
 ]
 

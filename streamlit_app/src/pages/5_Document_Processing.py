@@ -90,7 +90,8 @@ else:
                 inputs = {"text": st.session_state["document"].page_content}
                 llm = HuggingFacePipeline(
                     pipeline=pipeline(
-                        task="text-generation", model=model._model, tokenizer=model._tokenizer
+                        task="text-generation", model=model._model, tokenizer=model._tokenizer,
+                        max_new_tokens=2000
                     )
                 )
                 token_length = len(
