@@ -53,7 +53,6 @@ def model_settings(include_gen_params=True,
                 "Model",
                 options=st.session_state.available_model_names,
                 placeholder="Select a model...",
-                index=None,
                 key="model_name",
             )
 
@@ -66,15 +65,15 @@ def model_settings(include_gen_params=True,
                     st.session_state["model"] = AppModel(
                         **model_config,device_map=device_map
                     )
-                    st.write(
-                        f"Model {st.session_state.model._model_name} loaded successfully"
-                    )
+    
             if "model" in st.session_state:
-                st.caption(f"Using Model {st.session_state.model._model_name}")
+                st.success(f"Model Ready: {st.session_state.model._model_name}")
                 st.link_button(
                     "Model Card",
                     url=f"https://huggingface.co/{st.session_state.model._model_name}",
                 )
+            else:
+                st.error("No Model Loaded")
         if st.button("Unload Model"):
                 unload_model()
                 st.rerun()

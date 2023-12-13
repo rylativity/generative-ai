@@ -18,11 +18,12 @@ class ModelType(Enum):
     OTHER = "other"
     GPTQ = "gptq"
     GGUF = "gguf"
+    AWQ = "awq"
 
 
 CPU_MODELS = [
     {
-        "model_name": "PY007/TinyLlama-1.1B-Chat-v0.6",
+        "model_name": "TinyLlama/TinyLlama-1.1B-Chat-v0.6",
         "model_type": ModelType.OTHER
     },
     {
@@ -42,7 +43,7 @@ CPU_MODELS = [
 GPU_MODELS = [
     {
         "model_name": "TheBloke/TinyLlama-1.1B-Chat-v0.3-AWQ",
-        "model_type": ModelType.GPTQ
+        "model_type": ModelType.AWQ
     },
     {
         "model_name": "TheBloke/Mistral-7B-OpenOrca-GPTQ",
@@ -107,7 +108,7 @@ class AppModel:
         self._model_name = model_name
         self._device_map = device_map
         self._model_type = model_type
-        if self._model_type in [ModelType.GPTQ, ModelType.OTHER]:
+        if self._model_type in [ModelType.GPTQ, ModelType.AWQ, ModelType.OTHER]:
             # if model_file:
             #     self._model_file = model_file
             # else:
