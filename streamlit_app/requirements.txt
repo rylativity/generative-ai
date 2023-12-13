@@ -17,3 +17,4 @@ pytesseract
 diffusers
 python-dotenv
 streamlit-drawable-canvas
+autoawq

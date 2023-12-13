@@ -22,7 +22,7 @@ class ModelType(Enum):
 
 CPU_MODELS = [
     {
-        "model_name": "PY007/TinyLlama-1.1B-Chat-v0.3",
+        "model_name": "PY007/TinyLlama-1.1B-Chat-v0.6",
         "model_type": ModelType.OTHER
     },
     {
@@ -40,6 +40,10 @@ CPU_MODELS = [
 ]
 
 GPU_MODELS = [
+    {
+        "model_name": "TheBloke/TinyLlama-1.1B-Chat-v0.3-AWQ",
+        "model_type": ModelType.GPTQ
+    },
     {
         "model_name": "TheBloke/Mistral-7B-OpenOrca-GPTQ",
          "model_type": ModelType.GPTQ
