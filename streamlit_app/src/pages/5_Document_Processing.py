@@ -1,12 +1,13 @@
 import streamlit as st
 from langchain.chains.summarize import load_summarize_chain
+from langchain.chains import create_extraction_chain
 from langchain.document_loaders import UnstructuredURLLoader, UnstructuredPDFLoader
 from langchain.docstore.document import Document
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.llms.huggingface_pipeline import HuggingFacePipeline
 from transformers import pipeline
 from models import AppModel
-from prompt_templates import SUMMARIZE_PROMPT_TEMPLATE
+from prompt_templates import EXTRACTION_PROMPT_TEMPLATE
 from uuid import uuid4
 from components import model_settings
 
@@ -81,37 +82,52 @@ else:
         st.write("Select a model to proceed")
     else:
         model: AppModel = st.session_state.model
+        llm = HuggingFacePipeline(
+                    pipeline=pipeline(
+                        task="text-generation", model=model._model, tokenizer=model._tokenizer,
+                        max_new_tokens=2000,
+                        repetition_penalty=1.1
+                    )
+                )
+        inputs = {"text": st.session_state["document"].page_content}
+                
+        token_length = len(
+            model._tokenizer.encode(st.session_state.document.page_content)
+        )
+        if token_length > 1500:
+            # chain_type = "refine"
+            splitter = RecursiveCharacterTextSplitter(chunk_size=1000)
+            docs = splitter.split_documents([st.session_state.document])
+        else:
+            # chain_type = "stuff"
+            docs = [st.session_state.document]
+
     if processing_option == "Summarization":
         with st.form("Document Processing"):
             chain_type = st.radio("Chain Type", options=["refine", "map_reduce", "stuff"], horizontal=True)
             submitted = st.form_submit_button("Summarize", use_container_width=True)
         if submitted:
             with st.spinner("Summarizing..."):
-                prompt = SUMMARIZE_PROMPT_TEMPLATE
-                inputs = {"text": st.session_state["document"].page_content}
-                llm = HuggingFacePipeline(
-                    pipeline=pipeline(
-                        task="text-generation", model=model._model, tokenizer=model._tokenizer,
-                        max_new_tokens=2000
-                    )
-                )
-                token_length = len(
-                    model._tokenizer.encode(st.session_state.document.page_content)
-                )
-                if token_length > 1500:
-                    # chain_type = "refine"
-                    splitter = RecursiveCharacterTextSplitter(chunk_size=1000)
-                    docs = splitter.split_documents([st.session_state.document])
-                else:
-                    # chain_type = "stuff"
-                    docs = [st.session_state.document]
                 chain = load_summarize_chain(llm, chain_type=chain_type, verbose=True)
 
                 summary = chain.run(docs)
                 st.write(summary)
 
     elif processing_option == "Extraction":
-        ...
-        st.write("TODO...")
+        with st.form("Document Processing"):
+            properties = st.text_input("Properties to extract", placeholder="Comma separated list of properties (e.g. name,age,height)")
+            submitted = st.form_submit_button("Extract", use_container_width=True)
+            
+            if submitted:
+                if not properties:
+                    st.error("Must specify properties to extract")
+                else:
+                    with st.spinner("Extracting..."):
+                        properties = properties.split(",")
+                        prompt = EXTRACTION_PROMPT_TEMPLATE.format(passage=st.session_state.document.page_content, properties=properties)
+                        # chain = create_extraction_chain(schema=schema, llm=llm, verbose=True)
+                        extraction_result = llm(prompt)
+                        st.write(extraction_result)
+        
     elif processing_option == "Q&A":
         st.write("TODO...")

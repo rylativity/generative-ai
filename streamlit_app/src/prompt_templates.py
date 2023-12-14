@@ -78,3 +78,25 @@ New Input: {input}[/INST]
 Standalone Question:""",
     input_variables=["chat_history", "input"],
 )
+
+EXTRACTION_PROMPT_TEMPLATE = PromptTemplate(
+template="""Extract the specified properties for each unique entity in the passage that posesses those properties. Only extract the properties mentioned. Format each entity as a JSON object where the property is the key and the value is the value.
+
+Passage:
+The brown cat found twelve berries and shared them with the blue mouse.
+
+Properties:
+animal,color
+
+Extracted Entites (JSON):
+[{{"animal":"cat","color":"brown"}},{{"animal":"mouse","color":"blue"}}]
+
+Passage:
+{passage}
+
+Properties:
+{properties}
+
+Extracted Entities (JSON):""",
+input_variables=["passage","properties"]
+)
