@@ -83,6 +83,7 @@ else:
         model: AppModel = st.session_state.model
     if processing_option == "Summarization":
         with st.form("Document Processing"):
+            chain_type = st.radio("Chain Type", options=["refine", "map_reduce", "stuff"], horizontal=True)
             submitted = st.form_submit_button("Summarize", use_container_width=True)
         if submitted:
             with st.spinner("Summarizing..."):
@@ -98,11 +99,11 @@ else:
                     model._tokenizer.encode(st.session_state.document.page_content)
                 )
                 if token_length > 1500:
-                    chain_type = "map_reduce"
+                    # chain_type = "refine"
                     splitter = RecursiveCharacterTextSplitter(chunk_size=1000)
                     docs = splitter.split_documents([st.session_state.document])
                 else:
-                    chain_type = "stuff"
+                    # chain_type = "stuff"
                     docs = [st.session_state.document]
                 chain = load_summarize_chain(llm, chain_type=chain_type, verbose=True)
 
