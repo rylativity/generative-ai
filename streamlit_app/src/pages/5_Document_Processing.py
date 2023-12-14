@@ -70,7 +70,7 @@ else:
     with st.expander("Document Content", expanded=False):
         st.write(st.session_state["document"].page_content)
 
-    processing_method_options = ["Summarization", "Extraction", "Q&A"]
+    processing_method_options = ["Summarization", "Entity Extraction", "Fact Extraction"]
     processing_option = st.radio(
         "Processing Method",
         options=processing_method_options,
@@ -113,7 +113,7 @@ else:
                 summary = chain.run(docs)
                 st.write(summary)
 
-    elif processing_option == "Extraction":
+    elif processing_option == "Entity Extraction":
         with st.form("Document Processing"):
             properties = st.text_input("Properties to extract", placeholder="Comma separated list of properties (e.g. name,age,height)")
             submitted = st.form_submit_button("Extract", use_container_width=True)
@@ -129,5 +129,5 @@ else:
                         extraction_result = llm(prompt)
                         st.write(extraction_result)
         
-    elif processing_option == "Q&A":
+    elif processing_option == "Fact Extraction":
         st.write("TODO...")
