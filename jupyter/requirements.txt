@@ -21,3 +21,4 @@ safetensors
 pymilvus
 accelerate
 ctransformers
+llama-cpp-python
