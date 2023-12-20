@@ -102,5 +102,6 @@ else:
                     )
 
         if generate_submit and form_is_valid():
+            st.header("Generated Text")
             st.write(output["text"])
             st.caption(f"Generated tokens: {output['output_token_length']}")

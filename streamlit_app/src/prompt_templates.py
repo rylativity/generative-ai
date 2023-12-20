@@ -25,7 +25,7 @@ CHAT_PROMPT_TEMPLATE = PromptTemplate(
 You are a conversational assistant. Answer honestly and if you do not have enough information to answer, say so. 
 <</SYS>>
 
-{messages}
+{messages}[/INST]
 
 Assistant:""",
     input_variables=["messages"],
@@ -80,7 +80,7 @@ Standalone Question:""",
 )
 
 EXTRACTION_PROMPT_TEMPLATE = PromptTemplate(
-template="""Extract the specified properties for each unique entity in the passage that posesses those properties. Only extract the properties mentioned. Format each entity as a JSON object where the property is the key and the value is the value.
+template="""Extract the specified properties for each unique entity in the passage that posesses those properties. Only extract the properties mentioned. DO NOT refer to previous passages or extracted entites. Format each entity as a JSON object where the property is the key.
 
 Passage:
 The brown cat found twelve berries and shared them with the blue mouse.
