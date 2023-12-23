@@ -1,6 +1,6 @@
 FROM python:3.10
 
-RUN apt-get update && apt-get install graphviz-dev && \
+RUN apt update && apt install -y graphviz-dev && \
     pip install jupyterlab
 
 COPY ./requirements.txt .
