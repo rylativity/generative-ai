@@ -2,7 +2,6 @@ streamlit
 transformers[agents]
 sentence-transformers
 langchain
-ctransformers
 accelerate
 llama-cpp-python
 auto-gptq
@@ -18,3 +17,4 @@ diffusers
 python-dotenv
 streamlit-drawable-canvas
 autoawq
+llama-cpp-python

@@ -2,7 +2,7 @@ from enum import Enum
 
 from logging import getLogger
 from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
-from ctransformers import AutoModelForCausalLM as C_AutoModelForCausalLM
+from llama_cpp import Llama
 from huggingface_hub import hf_hub_download
 
 # from ctransformers import AutoModelForCausalLM as CAutoModelForCausalLM
@@ -37,6 +37,12 @@ CPU_MODELS = [
         "model_file": "mistral-7b-openorca.Q4_K_M.gguf",
         "model_type": ModelType.GGUF,
         "tokenizer_model_name":"TheBloke/Mistral-7B-OpenOrca-GPTQ"
+    },
+    {
+        "model_name": "TheBloke/Mixtral-8x7B-Instruct-v0.1-GGUF",
+        "model_file": "mixtral-8x7b-instruct-v0.1.Q4_K_M.gguf",
+        "model_type": ModelType.GGUF,
+        "tokenizer_model_name":"TheBloke/Mixtral-8x7B-Instruct-v0.1-GPTQ"
     }
 ]
 
@@ -104,6 +110,9 @@ class AppModel:
         model_file: str = None,
         tokenizer_model_name=None,
         device_map="auto",
+        n_gpu_layers=30,
+        context_length=4000,
+        llama_cpp_threads=8
     ):
         self._model_name = model_name
         self._device_map = device_map
@@ -124,17 +133,18 @@ class AppModel:
                 raise ValueError("Must provide model_file if using GGUF model")
             self._model_file = model_file
 
-            hf_hub_download(self._model_name, filename=self._model_file)
+            model_path = hf_hub_download(self._model_name, filename=self._model_file)
 
-            self._model = C_AutoModelForCausalLM.from_pretrained(self._model_name, model_file=self._model_file, model_type="llama", gpu_layers=0,
-                                          # max_new_tokens = 1000,
-                                       context_length = 4000
-                                          )
+            self._model = Llama(model_path=model_path, 
+                                    n_ctx=context_length,  # The max sequence length to use - note that longer sequence lengths require much more resources
+                                    n_threads=llama_cpp_threads,            # The number of CPU threads to use, tailor to your system and the resulting performance
+                                    n_gpu_layers=n_gpu_layers        # The number of layers to offload to GPU, if you have GPU acceleration available
+                                )
         else:
             raise Exception(f"No AppModel interface implemented for model type {self._model_type}")
         
         try:
-            exllama_set_max_input_length(self._model, 4096)
+            exllama_set_max_input_length(self._model, context_length)
         except (AttributeError, ValueError):
             pass
         
@@ -167,7 +177,7 @@ class AppModel:
         if prompt_template is None:
             prompt_template = DEFAULT
 
-        prompt = prompt_template.format(**inputs)
+        original_prompt = prompt_template.format(**inputs)
 
         generation_config = {
             "min_new_tokens":min_new_tokens,
@@ -179,21 +189,35 @@ class AppModel:
             "num_return_sequences":num_return_sequences,
             # "stop_sequences":stop_sequences
         }
+
+        llama_cpp_kwarg_mapper = {
+            "max_tokens":"max_new_tokens",
+            "temperature":"temperature",
+            "repeat_penalty":"repetition_penalty",
+        }
         if self._model_type == ModelType.GGUF:
             # generation_config["stop"] = generation_config["stop_sequences"]
-            # generation_config = {k:v for k,v in generation_config.items() if k in self._model.config.__dict__}
-            generated_text = self._model(
-                prompt, 
-                # **generation_config
-                )
-            output_token_length = len(self._model.tokenize(generated_text))
+            generation_config = {k:generation_config[v] for k,v in llama_cpp_kwarg_mapper.items()}
+            generation_config["echo"] = False
+            
+            output_token_length = 0
+            prompt = original_prompt
+            while output_token_length < min_new_tokens:
+                response = self._model(
+                    prompt, 
+                    **generation_config
+                    )
+                generated_text = response["choices"][0]["text"]
+                
+                output_token_length += response["usage"]["completion_tokens"]
+                prompt += generated_text # In case we have to generate more text to meet minimum token count
         else:
             if self._device_map == "auto" and cuda_is_available():
-                input_tensor = self._tokenizer.encode(prompt, return_tensors="pt").to(
+                input_tensor = self._tokenizer.encode(original_prompt, return_tensors="pt").to(
                     "cuda"
                 )
             else:
-                input_tensor = self._tokenizer.encode(prompt, return_tensors="pt")
+                input_tensor = self._tokenizer.encode(original_prompt, return_tensors="pt")
             
             output_tensor = self._model.generate(
                 input_tensor,
