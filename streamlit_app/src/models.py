@@ -207,6 +207,11 @@ class AppModel:
             # generation_config["stop"] = generation_config["stop_sequences"]
             generation_config = {k:generation_config[v] for k,v in llama_cpp_kwarg_mapper.items()}
             generation_config["echo"] = False
+
+            if do_sample:
+                pass
+            else:
+                generation_config["top_k"] = 1
             
             output_token_length = 0
             prompt = original_prompt
