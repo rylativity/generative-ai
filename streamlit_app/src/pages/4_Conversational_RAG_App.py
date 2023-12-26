@@ -294,25 +294,29 @@ else:
             condensed_input_placeholder = st.empty()
             message_placeholder = st.empty()
             sources_placeholder = st.empty()
+
             with st.spinner("..."):
-                ## CONDENSE THE CHAT INPUT
-                messages_history_string = "\n\n".join(
-                    [
-                        f"{message['role'].title()}: {message['content']}"
-                        for message in st.session_state.messages
-                    ]
-                )
-                response = model.run(
-                    inputs={"chat_history": messages_history_string, "input": prompt},
-                    prompt_template=CONDENSE_QUESTION_PROMPT_TEMPLATE,
-                    # stop_sequences=["User:"],
-                    **generation_parameters,
-                )
-                condensed_input = response["text"]
-                if return_intermediate_question:
-                    condensed_input_placeholder.caption(
-                        f"Question rephrased to: {condensed_input}"
+                if not len(st.session_state.messages) > 1:
+                    condensed_input = prompt
+                else:
+                    ## CONDENSE THE CHAT INPUT
+                    messages_history_string = "\n\n".join(
+                        [
+                            f"{message['role'].title()}: {message['content']}"
+                            for message in st.session_state.messages
+                        ]
                     )
+                    response = model.run(
+                        inputs={"chat_history": messages_history_string, "input": prompt},
+                        prompt_template=CONDENSE_QUESTION_PROMPT_TEMPLATE,
+                        # stop_sequences=["User:"],
+                        **generation_parameters,
+                    )
+                    condensed_input = response["text"]
+                    if return_intermediate_question:
+                        condensed_input_placeholder.caption(
+                            f"Question rephrased to: {condensed_input}"
+                        )
 
                 ## FETCH CONTEXT
                 with st.spinner("Searching knowledge base..."):
