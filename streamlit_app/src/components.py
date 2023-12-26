@@ -1,7 +1,7 @@
 import streamlit as st
 import gc
 from torch.cuda import is_available as cuda_is_available
-from models import CPU_MODELS, GPU_MODELS, AppModel
+from models import CPU_MODELS, GPU_MODELS, FAVORITE_MODELS, AppModel
 
 MODEL_CONFIGS = CPU_MODELS + GPU_MODELS
 
@@ -10,6 +10,8 @@ def unload_model():
         st.session_state.model=None
         gc.collect()
         del st.session_state["model"]
+    if "model_config" in st.session_state:
+        del st.session_state.model_config
     if "diffuser_model" in st.session_state:
         st.session_state.diffuser_model=None
         gc.collect()
@@ -32,10 +34,14 @@ def model_settings(include_gen_params=True,
             help="'auto' will use GPU if available, while 'cpu' will always use CPU for inference, even if a GPU is available"
             # disabled=True
         )
+        favorites_only = st.checkbox("Favorite Models Only")
         if device_map == "cpu" or not cuda_is_available():
             st.session_state.available_model_names = [m["model_name"] for m in CPU_MODELS]
         else:
             st.session_state.available_model_names = [m["model_name"] for m in CPU_MODELS + GPU_MODELS]
+        
+        if favorites_only:
+            st.session_state.available_model_names = [model for model in st.session_state.available_model_names if model in FAVORITE_MODELS]
         with st.form("model_selector"):
             st.header("Model Selector",
                       help="Select a Large Language Model to use. (Available options depend on device map. GPTQ models can only run on GPU)")
@@ -56,18 +62,45 @@ def model_settings(include_gen_params=True,
                 key="model_name",
             )
 
+            context_length = st.number_input(
+                "Context Length",
+                min_value=1,
+                max_value=32000,
+                value=4000
+            )
+            llama_cpp_threads = st.number_input(
+                "Threads",
+                min_value=1,
+                max_value=64,
+                value=8
+            )
+            if cuda_is_available:
+                n_gpu_layers = st.number_input(
+                    "GPU Layers",
+                    min_value=0,
+                    max_value=200,
+                    value=50
+                )
+            else:
+                n_gpu_layers = 0
+
+
             load_model = st.form_submit_button("Load Model")
 
             if load_model:
                 unload_model()
                 model_config = [m for m in MODEL_CONFIGS if m["model_name"] == model_name][0]
+                model_config["device_map"] = device_map
+                model_config["context_length"] = context_length
+                model_config["llama_cpp_threads"] = llama_cpp_threads
+                model_config["n_gpu_layers"] = n_gpu_layers
                 with st.spinner("Loading model"):
-                    st.session_state["model"] = AppModel(
-                        **model_config,device_map=device_map
-                    )
+                    st.session_state["model"] = AppModel(**model_config)
+                    st.session_state["model_config"] = model_config
     
             if "model" in st.session_state:
                 st.success(f"Model Ready: {st.session_state.model._model_name}")
+                st.caption(f"Model kwargs: {st.session_state.model_config}")
                 st.link_button(
                     "Model Card",
                     url=f"https://huggingface.co/{st.session_state.model._model_name}",
@@ -99,7 +132,7 @@ def model_settings(include_gen_params=True,
                     help="Minimum number of output tokens in generated response. (Applies to both greedy and sample decoding)"
                 )
                 st.number_input(
-                    "Max New Tokens", min_value=1, max_value=None, value=25, key="max_new_tokens",
+                    "Max New Tokens", min_value=1, max_value=None, value=200, key="max_new_tokens",
                     help="Maximum number of output tokens in generated response. (Applies to both greedy and sample decoding)"
                 )
                 st.number_input(
