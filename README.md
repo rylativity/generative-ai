@@ -1,30 +1,26 @@
 # Generative AI Examples
 
-## Setup
+This repo contains examples showing how to use containerized, locally hosted, free and open large-language models (e.g. llama2, mixtral, etc...) for various use-cases with either CPU or GPU (or both). This project includes an easy-to-use Streamlit user-interface for LLM inference for various use-cases (e.g. chatbot, RAG, text processing, and more...) and a jupyterlab environment (along with some example notebooks) for interacting with LLMs programatically in python (along with some auxiliary services; e.g. vector-store). 
 
-**Important Note - Using GPUs in Containers**
+Follow the setup steps below to get started.
 
-If not using GPU, you MUST comment out the entire "deploy" section and everything contained within in the docker-compose.yml under the "jupyter" service.
+**YOU MUST HAVE DOCKER & DOCKER-COMPOSE INSTALLED TO RUN THIS PROJECT. If you do not have Docker installed, follow the installation instructions for your operating system here - https://docs.docker.com/engine/install/**
 
-For instructions on installing dependencies required to make GPU available inside container, see https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html.
+**If not using GPU, you MUST comment out the entire "deploy" section and everything contained within in the docker-compose.yml under the "jupyter" and "streamlit" services.**
 
-**I highly recommend using docker, because it includes containers for auxiliary services that some of the notebooks and UI Apps rely on. If you use the Python setup instructions, you will need to configure your own auxiliary services (e.g. Chroma vector database) where relevant.**
+**For instructions on installing dependencies required to make GPU available inside Docker containers, see https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html.**
 
-
-### Option 1) Docker (Recommended)
+## Setup Steps
 
 - Copy or rename ".env.template" to ".env" and add your HuggingFace Hub API token
-- Some notebooks require Milvus or OpenSearch. You can provide your own instances or use the ones provided in the docker-compose.yml.
-    - To use Opensearch, uncomment the "opensearch" (and optionally "opensearch-dashboards") service in "docker-compose.yml"
-    - To use Milvus, uncomment the "etcd", "minio", and "milvus" services in "docker-compose.yml"
 - Run `docker compose up -d` in the root level of the project (the folder containing the "docker-compose.yml" file)
-- Navigate to http://localhost:8888 in your web browser and run notebooks.
+- Navigate to http://localhost:8501 in your web browser to download and play with models and generative AI use-cases
+- Navigate to http://localhost:8888 in your web browser and run python example notebooks.
 
-### Option 2) Python
-
-- `python3 -m venv venv`
-- `source venv/bin/activate` (or `source venv/Scripts/activate` on Windows)
-- `pip install -r requirements.txt`
-- Copy or rename ".env.template" to ".env" and add your HuggingFace Hub API token
-- Run notebooks (run `pip install jupyterlab` and then `jupyter lab` if you want to run the notebooks in JupyterLab from the virtual environment)
-- Note: In order to run the notebooks that require Milvus or OpenSearch, you will either need to deploy the ones provided as described above under the Docker setup instructions or provide your own instances.
+## To-Do / Roadmap
+- [] Update README
+- [] Move model inference functionality to FastAPI
+- [] Implement SQLAlchemy (or other) in streamlit app to save prompt configurations and store documents
+- [] Update layout of streamlit app
+- [] Add natural-language to SQL use-case to streamlit app
+- [] Add LLM Agent example (either as separate use-case or as part of chatbot) to streamlit app
