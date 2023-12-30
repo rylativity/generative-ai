@@ -24,3 +24,4 @@ Follow the setup steps below to get started.
 - [] Update layout of streamlit app
 - [] Add natural-language to SQL use-case to streamlit app
 - [] Add LLM Agent example (either as separate use-case or as part of chatbot) to streamlit app
+- [] Add additional model metadata and model-specific prompts, and automatically update default prompts and kwargs on a per-model basis 
