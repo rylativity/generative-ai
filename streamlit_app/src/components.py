@@ -66,7 +66,7 @@ def model_settings(include_gen_params=True,
                 "Context Length",
                 min_value=1,
                 max_value=32000,
-                value=4000
+                value=16000
             )
             llama_cpp_threads = st.number_input(
                 "Threads",
@@ -79,7 +79,7 @@ def model_settings(include_gen_params=True,
                     "GPU Layers",
                     min_value=0,
                     max_value=200,
-                    value=50
+                    value=10
                 )
             else:
                 n_gpu_layers = 0

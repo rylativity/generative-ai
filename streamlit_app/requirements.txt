@@ -3,7 +3,6 @@ transformers[agents]
 sentence-transformers
 langchain
 accelerate
-llama-cpp-python
 auto-gptq
 optimum
 chromadb-client
@@ -17,4 +16,4 @@ diffusers
 python-dotenv
 streamlit-drawable-canvas
 autoawq
-llama-cpp-python
+# llama-cpp-python

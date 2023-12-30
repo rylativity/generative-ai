@@ -1,3 +1,4 @@
+jupyterlab
 transformers[agents]
 torch
 langchain
@@ -20,4 +21,4 @@ accelerate
 safetensors
 pymilvus
 accelerate
-llama-cpp-python
+# llama-cpp-python
