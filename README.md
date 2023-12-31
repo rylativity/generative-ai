@@ -21,7 +21,9 @@ Follow the setup steps below to get started.
 - [] Update README
 - [] Move model inference functionality to FastAPI
 - [] Implement SQLAlchemy (or other) in streamlit app to save prompt configurations and store documents
-- [] Update layout of streamlit app
+- [] Update layout of streamlit app to improve user experience/flow
+- [] Add multi-prompting to Basic Prompting in streamlit app
 - [] Add natural-language to SQL use-case to streamlit app
 - [] Add LLM Agent example (either as separate use-case or as part of chatbot) to streamlit app
 - [] Add additional model metadata and model-specific prompts, and automatically update default prompts and kwargs on a per-model basis 
+- [] Address bug where llama-cpp-python gguf models don't release GPU VRAM when using n_gpu_layers

@@ -21,18 +21,23 @@ class ModelType(Enum):
     AWQ = "awq"
 
 FAVORITE_MODELS = [
-    "TinyLlama/TinyLlama-1.1B-Chat-v0.6",
-    "TheBloke/Mixtral-8x7B-Instruct-v0.1-GGUF",
-    "TheBloke/Llama-2-7B-chat-GPTQ"
+    "TheBloke/Mistral-7B-Instruct-v0.1-GGUF",
     "TheBloke/Mistral-7B-OpenOrca-GPTQ",
     "TheBloke/Llama-2-13B-chat-GPTQ",
     "TheBloke/vicuna-13B-v1.5-16K-GPTQ"
+    "TheBloke/Mixtral-8x7B-Instruct-v0.1-GGUF",
 ]
 
 CPU_MODELS = [
     {
         "model_name": "TinyLlama/TinyLlama-1.1B-Chat-v0.6",
         "model_type": ModelType.OTHER
+    },
+    {
+        "model_name": "TheBloke/Mistral-7B-Instruct-v0.1-GGUF",
+        "model_file": "mistral-7b-instruct-v0.1.Q4_K_M.gguf",
+        "model_type": ModelType.GGUF,
+        "tokenizer_model_name":"TheBloke/Mistral-7B-Instruct-v0.1-GPTQ"
     },
     {
         "model_name": "TheBloke/Llama-2-7B-chat-GGUF",

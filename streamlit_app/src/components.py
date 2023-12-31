@@ -94,7 +94,7 @@ def model_settings(include_gen_params=True,
                 model_config["context_length"] = context_length
                 model_config["llama_cpp_threads"] = llama_cpp_threads
                 model_config["n_gpu_layers"] = n_gpu_layers
-                with st.spinner("Loading model"):
+                with st.spinner("Downloading/Loading model (check Streamlit container logs for more detail)"):
                     st.session_state["model"] = AppModel(**model_config)
                     st.session_state["model_config"] = model_config
     
