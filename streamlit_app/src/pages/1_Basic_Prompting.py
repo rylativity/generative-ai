@@ -13,6 +13,8 @@ model_settings()
 if not "model" in st.session_state:
     st.header("*Load a model to get started*")
 else:
+    st.title("Basic Prompting")
+
     model: AppModel = st.session_state.model
     generation_parameters: dict = st.session_state.generation_parameters
 
@@ -20,13 +22,19 @@ else:
     with st.container():
         use_custom_prompt = st.checkbox("Custom Prompt")
         if use_custom_prompt:
-            with st.expander("Advanced Prompting"):
+            st.caption(
+                    """
+                    Type your prompt template below. Prompt variables/placeholders should be surrounded by curly braces (e.g. {input_string}).
+                    
+                    A form field will be created for each prompt variable/placeholder below.
+                    """
+                )
+            with st.container(border=True):
+               
                 st.session_state.prompt_template = st.text_area(
-                    "Prompt Template", value=LLAMA2_DEFAULT.template
+                    "Prompt Template", value=LLAMA2_DEFAULT.template, height=350
                 )
-                st.caption(
-                    "Type your prompt template above. Variables should be surrounded by curly braces (e.g. {input_string})"
-                )
+                
 
                 st.session_state.prompt_variables = names = [
                     fn
@@ -35,7 +43,7 @@ else:
                     )
                     if fn is not None
                 ]
-                st.write(
+                st.caption(
                     f"Found variables in prompt template: {st.session_state.prompt_variables}"
                 )
 
