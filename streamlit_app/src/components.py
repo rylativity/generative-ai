@@ -34,7 +34,7 @@ def model_settings(include_gen_params=True,
             help="'auto' will use GPU if available, while 'cpu' will always use CPU for inference, even if a GPU is available"
             # disabled=True
         )
-        favorites_only = st.checkbox("Favorite Models Only")
+        favorites_only = st.checkbox("Favorite Models Only", value=True)
         if device_map == "cpu" or not cuda_is_available():
             st.session_state.available_model_names = [m["model_name"] for m in CPU_MODELS]
         else:

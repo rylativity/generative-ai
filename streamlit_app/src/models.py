@@ -24,7 +24,8 @@ FAVORITE_MODELS = [
     "TheBloke/Mistral-7B-Instruct-v0.1-GGUF",
     "TheBloke/Mistral-7B-OpenOrca-GPTQ",
     "TheBloke/Llama-2-13B-chat-GPTQ",
-    "TheBloke/vicuna-13B-v1.5-16K-GPTQ"
+    "TheBloke/vicuna-13B-v1.5-16K-GGUF",
+    "TheBloke/vicuna-13B-v1.5-16K-GPTQ",
     "TheBloke/Mixtral-8x7B-Instruct-v0.1-GGUF",
 ]
 
@@ -50,6 +51,12 @@ CPU_MODELS = [
         "model_file": "mistral-7b-openorca.Q4_K_M.gguf",
         "model_type": ModelType.GGUF,
         "tokenizer_model_name":"TheBloke/Mistral-7B-OpenOrca-GPTQ"
+    },
+    {
+        "model_name": "TheBloke/vicuna-13B-v1.5-16K-GGUF",
+        "model_file": "vicuna-13b-v1.5-16k.Q4_K_M.gguf",
+        "model_type": ModelType.GGUF,
+        "tokenizer_model_name":"TheBloke/vicuna-13B-v1.5-16K-GPTQ"
     },
     {
         "model_name": "TheBloke/Mixtral-8x7B-Instruct-v0.1-GGUF",
