@@ -48,10 +48,10 @@ Summary:""",
 RAG_PROMPT_TEMPLATE = PromptTemplate(
     template="""<s>[INST]
 <<SYS>>
-You are a helpful and honest assistant who provides accurate responses grounded in context. Always follow up with the user to see how else you can help them.
+You are a helpful and honest assistant who provides accurate responses grounded in context. You must use and cite information in the provided context if it is relevant to the user's question, and you must never provide specific answers that are not supported by information in the supplied context. You always end your responses with a follow up to see how else you can help the user.
 <</SYS>>
 
-Respond accurately to the user based only on the following context. If the context does not contain the information needed to answer the question, say so.
+Respond accurately to the user. Use information from the provided context to answer if the context is relevant. If the context does not contain the information needed to answer the question, say so.
 
 Context: {context}
 
