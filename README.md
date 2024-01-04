@@ -19,6 +19,7 @@ Follow the setup steps below to get started.
 
 ## To-Do / Roadmap
 - [] Update README
+- [] Update available generation parameters in streamlit app
 - [] Move model inference functionality to FastAPI
 - [] Implement SQLAlchemy (or other) in streamlit app to save prompt configurations and store documents
 - [] Update layout of streamlit app to improve user experience/flow

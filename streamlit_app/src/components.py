@@ -71,8 +71,8 @@ def model_settings(include_gen_params=True,
             llama_cpp_threads = st.number_input(
                 "Threads",
                 min_value=1,
-                max_value=64,
-                value=8
+                max_value=32,
+                value=4
             )
             if cuda_is_available:
                 n_gpu_layers = st.number_input(
@@ -135,24 +135,34 @@ def model_settings(include_gen_params=True,
                     "Max New Tokens", min_value=1, max_value=None, value=200, key="max_new_tokens",
                     help="Maximum number of output tokens in generated response. (Applies to both greedy and sample decoding)"
                 )
-                st.number_input(
+                st.slider(
                     "Repetition Penalty", min_value=1.0, max_value=2.0, value=1.0, key="repetition_penalty",
                     help="Penalization factor for repeated tokens. (Applies to both greedy and sample decoding)"
                 )
 
                 if do_sample:
-                    st.number_input(
-                        "Temperature", min_value=0.0, max_value=1.4, value=0.5, key="temperature",
+                    st.slider(
+                        "Temperature", min_value=0.0, max_value=2.0, value=0.5, key="temperature",
                         help="Normalization factor for token probabilities. Higher numbers = greater normalization = greater likelihood of selecting less-likely tokens = greater 'creativity' factor. (Applies to only sample decoding)"
                     )
-                    st.number_input(
-                        "Number of Beams", min_value=1, max_value=None, value=1, key="num_beams",
-                        help="Number of token generation pathways to take at each generation step. (Applies to only sample decoding)"
+                    st.slider(
+                        "Top-P", min_value=0.01, max_value=1.00, value=1.00, key="top_p"
                     )
-                    st.number_input(
-                        "Num Return Sequences", min_value=1, max_value=None, value=1, key="num_return_sequences",
-                        help="Number of candidate output sequences to return in response to the prompt. (Applies to only sample decoding)"
+                    st.slider(
+                        "Top-K", min_value=1, max_value=250, value=50, key="top_k"
                     )
+                    st.slider(
+                        "Typical-P", min_value=0.01, max_value=1.00, value=1.00, key="typical_p"
+                    )
+
+                    # st.number_input(
+                    #     "Number of Beams", min_value=1, max_value=None, value=1, key="num_beams",
+                    #     help="Number of token generation pathways to take at each generation step. (Applies to only sample decoding)"
+                    # )
+                    # st.number_input(
+                    #     "Num Return Sequences", min_value=1, max_value=None, value=1, key="num_return_sequences",
+                    #     help="Number of candidate output sequences to return in response to the prompt. (Applies to only sample decoding)"
+                    # )
                 
                 
 
@@ -166,8 +176,11 @@ def model_settings(include_gen_params=True,
                     params.update(
                         {
                             "temperature": st.session_state.temperature,
-                            "num_beams": st.session_state.num_beams,
-                            "num_return_sequences": st.session_state.num_return_sequences,
+                            "top_k": st.session_state.top_k,
+                            "top_p": st.session_state.top_p,
+                            "typical_p": st.session_state.typical_p,
+                            #  "num_beams": st.session_state.num_beams,
+                            # "num_return_sequences": st.session_state.num_return_sequences,
                         }
                     )
 

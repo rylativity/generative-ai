@@ -188,9 +188,12 @@ class AppModel:
         max_new_tokens=20,
         repetition_penalty=1.0,
         do_sample=False,
+        top_p=1.0,
+        top_k=50,
+        typical_p=1.0,
         temperature=0.5,
-        num_beams=1,
-        num_return_sequences=1,
+        # num_beams=1,
+        # num_return_sequences=1,
         remove_tokens=["<s>", "</s>"],
         stop_sequences=[],
     ):
@@ -199,25 +202,16 @@ class AppModel:
 
         original_prompt = prompt_template.format(**inputs)
 
-        generation_config = {
-            "min_new_tokens":min_new_tokens,
-            "max_new_tokens":max_new_tokens,
-            "do_sample":do_sample,
-            "temperature":temperature,
-            "repetition_penalty":repetition_penalty,
-            "num_beams":num_beams,
-            "num_return_sequences":num_return_sequences,
-            # "stop_sequences":stop_sequences
-        }
-
-        llama_cpp_kwarg_mapper = {
-            "max_tokens":"max_new_tokens",
-            "temperature":"temperature",
-            "repeat_penalty":"repetition_penalty",
-        }
         if self._model_type == ModelType.GGUF:
+            generation_config = {
+                "max_tokens":max_new_tokens,
+                "temperature":temperature,
+                "repeat_penalty":repetition_penalty,
+                "top_k":top_k,
+                "top_p":top_p,
+                "typical_p":typical_p,
+            }
             # generation_config["stop"] = generation_config["stop_sequences"]
-            generation_config = {k:generation_config[v] for k,v in llama_cpp_kwarg_mapper.items()}
             generation_config["echo"] = False
 
             if do_sample:
@@ -237,6 +231,19 @@ class AppModel:
                 output_token_length += response["usage"]["completion_tokens"]
                 prompt += generated_text # In case we have to generate more text to meet minimum token count
         else:
+            generation_config = {
+            "min_new_tokens":min_new_tokens,
+            "max_new_tokens":max_new_tokens,
+            "do_sample":do_sample,
+            "temperature":temperature,
+            "repetition_penalty":repetition_penalty,
+            "top_k":top_k,
+            "top_p":top_p,
+            "typical_p":typical_p,
+                # "num_beams":num_beams,
+                # "num_return_sequences":num_return_sequences,
+                # "stop_sequences":stop_sequences
+            }
             if self._device_map == "auto" and cuda_is_available():
                 input_tensor = self._tokenizer.encode(original_prompt, return_tensors="pt").to(
                     "cuda"
