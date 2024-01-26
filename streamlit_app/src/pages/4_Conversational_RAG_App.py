@@ -222,7 +222,7 @@ with st.sidebar:
 
                 if url_submitted:
                     with st.spinner():
-                        store_and_index_html(url=entered_url)
+                        store_and_index_html(url=entered_url, chunk_size=text_chunk_size, chunk_overlap=text_chunk_overlap, overwrite_existing_source_docs=overwrite_existing_source_docs)
 
             elif upload_option == "file":
                 uploaded_file = st.file_uploader(
