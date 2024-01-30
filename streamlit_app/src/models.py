@@ -21,8 +21,8 @@ class ModelType(Enum):
     AWQ = "awq"
 
 FAVORITE_MODELS = [
-    "TheBloke/Mistral-7B-Instruct-v0.1-GGUF",
-    "TheBloke/Mistral-7B-OpenOrca-GPTQ",
+    "TheBloke/Mistral-7B-Instruct-v0.2-GGUF",
+    "TheBloke/Mistral-7B-Instruct-v0.2-GPTQ",
     "TheBloke/Llama-2-13B-chat-GPTQ",
     "TheBloke/vicuna-13B-v1.5-16K-GGUF",
     "TheBloke/vicuna-13B-v1.5-16K-GPTQ",
@@ -35,10 +35,10 @@ CPU_MODELS = [
         "model_type": ModelType.OTHER
     },
     {
-        "model_name": "TheBloke/Mistral-7B-Instruct-v0.1-GGUF",
-        "model_file": "mistral-7b-instruct-v0.1.Q4_K_M.gguf",
+        "model_name": "TheBloke/Mistral-7B-Instruct-v0.2-GGUF",
+        "model_file": "mistral-7b-instruct-v0.2.Q8_0.gguf",
         "model_type": ModelType.GGUF,
-        "tokenizer_model_name":"TheBloke/Mistral-7B-Instruct-v0.1-GPTQ"
+        "tokenizer_model_name":"TheBloke/Mistral-7B-Instruct-v0.2-GPTQ"
     },
     {
         "model_name": "TheBloke/Llama-2-7B-chat-GGUF",
@@ -60,7 +60,7 @@ CPU_MODELS = [
     },
     {
         "model_name": "TheBloke/Mixtral-8x7B-Instruct-v0.1-GGUF",
-        "model_file": "mixtral-8x7b-instruct-v0.1.Q4_K_M.gguf",
+        "model_file": "mixtral-8x7b-instruct-v0.1.Q5_K_M.gguf",
         "model_type": ModelType.GGUF,
         "tokenizer_model_name":"TheBloke/Mixtral-8x7B-Instruct-v0.1-GPTQ"
     }
@@ -76,7 +76,7 @@ GPU_MODELS = [
          "model_type": ModelType.GPTQ
     },
     {
-        "model_name": "TheBloke/samantha-mistral-7B-GPTQ",
+        "model_name": "TheBloke/Mistral-7B-Instruct-v0.2-GPTQ",
          "model_type": ModelType.GPTQ
     },
     {
