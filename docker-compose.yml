@@ -61,20 +61,20 @@ services:
               count: all
               capabilities: [gpu]
   
-  text-generation-inference:
-    image: ghcr.io/huggingface/text-generation-inference
-    ports:
-      - 3000:3000
-    command: ["--model-id", "TheBloke/Mistral-7B-Instruct-v0.2-GPTQ", "--revision", "gptq-8bit-128g-actorder_True", "--port", "3000", "--quantize", "gptq", "--max-input-length", "3696", "--max-total-tokens", "4096", "--max-batch-prefill-tokens", "4096"]
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: all
-              capabilities: [gpu]
-    volumes:
-      - tgi-data:/data
+  # text-generation-inference:
+  #   image: ghcr.io/huggingface/text-generation-inference
+  #   ports:
+  #     - 3000:3000
+  #   command: ["--model-id", "TheBloke/Mistral-7B-Instruct-v0.2-GPTQ", "--revision", "gptq-8bit-128g-actorder_True", "--port", "3000", "--quantize", "gptq", "--max-input-length", "3696", "--max-total-tokens", "4096", "--max-batch-prefill-tokens", "4096"]
+  #   deploy:
+  #     resources:
+  #       reservations:
+  #         devices:
+  #           - driver: nvidia
+  #             count: all
+  #             capabilities: [gpu]
+  #   volumes:
+  #     - tgi-data:/data
 
 volumes:
   chroma-data:
