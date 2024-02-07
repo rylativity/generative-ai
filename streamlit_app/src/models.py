@@ -168,7 +168,7 @@ class AppModel:
         
         try:
             exllama_set_max_input_length(self._model, context_length)
-        except (AttributeError, ValueError):
+        except (AttributeError, ValueError, ImportError):
             pass
         
         if not tokenizer_model_name:

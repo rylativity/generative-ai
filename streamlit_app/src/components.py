@@ -66,7 +66,7 @@ def model_settings(include_gen_params=True,
                 "Context Length",
                 min_value=1,
                 max_value=32000,
-                value=16000
+                value=4096
             )
             llama_cpp_threads = st.number_input(
                 "Threads",
