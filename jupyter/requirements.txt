@@ -21,4 +21,5 @@ accelerate
 safetensors
 pymilvus
 accelerate
+elasticsearch
 # llama-cpp-python

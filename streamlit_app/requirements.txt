@@ -16,4 +16,5 @@ diffusers
 python-dotenv
 streamlit-drawable-canvas
 autoawq
+elasticsearch
 # llama-cpp-python

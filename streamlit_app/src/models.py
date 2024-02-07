@@ -11,6 +11,9 @@ from torch.cuda import is_available as cuda_is_available
 from prompt_templates import DEFAULT
 from auto_gptq import exllama_set_max_input_length
 
+from utils.elastic import index_document
+INFERENCE_LOGGING_INDEX_NAME = "inference-log"
+
 log = getLogger(__name__)
 
 
@@ -196,6 +199,7 @@ class AppModel:
         # num_return_sequences=1,
         remove_tokens=["<s>", "</s>"],
         stop_sequences=[],
+        log_inferences=True
     ):
         if prompt_template is None:
             prompt_template = DEFAULT
@@ -271,4 +275,20 @@ class AppModel:
             "text": generated_text,
             "output_token_length": output_token_length,
         }
+
+        if log_inferences:
+            try:
+                payload = {
+                    "prompt":original_prompt,
+                    "output":generated_text,
+                    "timestamp":datetime.now().isoformat()
+                }
+                index_document(
+                    index_name=INFERENCE_LOGGING_INDEX_NAME,
+                    doc=payload,
+                    create_missing_index=True
+                )
+            except Exception as e:
+                log.error(e)
+                
         return output
