@@ -6,6 +6,10 @@ Follow the setup steps below to get started.
 
 **YOU MUST HAVE DOCKER & DOCKER-COMPOSE INSTALLED TO RUN THIS PROJECT. If you do not have Docker installed, follow the installation instructions for your operating system here - https://docs.docker.com/engine/install/**
 
+**TODO: IF USING CPU...**
+
+**TODO: IF USING GPU...**
+
 **If not using GPU, you MUST comment out the entire "deploy" section and everything contained within in the docker-compose.yml under the "jupyter" and "streamlit" services.**
 
 **For instructions on installing dependencies required to make GPU available inside Docker containers, see https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html.**

@@ -104,7 +104,7 @@ else:
 
     if processing_option == "Summarization":
         with st.form("Document Processing"):
-            chain_type = st.radio("Chain Type", options=["refine", "map_reduce", "stuff"], horizontal=True)
+            chain_type = st.radio("Chain Type", options=["stuff", "refine", "map_reduce"], horizontal=True)
             submitted = st.form_submit_button("Summarize", use_container_width=True)
         if submitted:
             with st.spinner("Summarizing..."):

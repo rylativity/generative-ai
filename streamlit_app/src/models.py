@@ -1,4 +1,6 @@
+from datetime import datetime
 from enum import Enum
+import os
 
 from logging import getLogger
 from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
@@ -9,12 +11,21 @@ from huggingface_hub import hf_hub_download
 from langchain.prompts import PromptTemplate
 from torch.cuda import is_available as cuda_is_available
 from prompt_templates import DEFAULT
-from auto_gptq import exllama_set_max_input_length
 
 from utils.elastic import index_document
 INFERENCE_LOGGING_INDEX_NAME = "inference-log"
 
 log = getLogger(__name__)
+
+def use_cuda():
+    PROCESSOR = os.environ.get("PROCESSOR")
+    if not PROCESSOR:
+        return False
+    else:
+        return PROCESSOR.lower() == "gpu" and cuda_is_available()
+
+if use_cuda():
+    from auto_gptq import exllama_set_max_input_length
 
 
 class ModelType(Enum):
@@ -166,10 +177,11 @@ class AppModel:
         else:
             raise Exception(f"No AppModel interface implemented for model type {self._model_type}")
         
-        try:
-            exllama_set_max_input_length(self._model, context_length)
-        except (AttributeError, ValueError, ImportError):
-            pass
+        if use_cuda():
+            try:
+                exllama_set_max_input_length(self._model, context_length)
+            except (AttributeError, ValueError, ImportError):
+                pass
         
         if not tokenizer_model_name:
             tokenizer_model_name = self._model_name
@@ -248,7 +260,7 @@ class AppModel:
                 # "num_return_sequences":num_return_sequences,
                 # "stop_sequences":stop_sequences
             }
-            if self._device_map == "auto" and cuda_is_available():
+            if self._device_map == "auto" and use_cuda():
                 input_tensor = self._tokenizer.encode(original_prompt, return_tensors="pt").to(
                     "cuda"
                 )
@@ -290,5 +302,6 @@ class AppModel:
                 )
             except Exception as e:
                 log.error(e)
+                raise e
                 
         return output

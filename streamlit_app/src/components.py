@@ -1,7 +1,6 @@
 import streamlit as st
 import gc
-from torch.cuda import is_available as cuda_is_available
-from models import CPU_MODELS, GPU_MODELS, FAVORITE_MODELS, AppModel
+from models import CPU_MODELS, GPU_MODELS, FAVORITE_MODELS, AppModel, use_cuda
 
 MODEL_CONFIGS = CPU_MODELS + GPU_MODELS
 
@@ -23,7 +22,7 @@ def model_settings(include_gen_params=True,
                    ):
     
     with st.sidebar:
-        if cuda_is_available():
+        if use_cuda():
             st.success("CUDA Available")
         else:
             st.warning("CUDA Unavailable")
@@ -35,7 +34,7 @@ def model_settings(include_gen_params=True,
             # disabled=True
         )
         favorites_only = st.checkbox("Favorite Models Only", value=True)
-        if device_map == "cpu" or not cuda_is_available():
+        if device_map == "cpu" or not use_cuda():
             st.session_state.available_model_names = [m["model_name"] for m in CPU_MODELS]
         else:
             st.session_state.available_model_names = [m["model_name"] for m in CPU_MODELS + GPU_MODELS]
@@ -74,7 +73,7 @@ def model_settings(include_gen_params=True,
                 max_value=32,
                 value=4
             )
-            if cuda_is_available:
+            if use_cuda():
                 n_gpu_layers = st.number_input(
                     "GPU Layers",
                     min_value=0,

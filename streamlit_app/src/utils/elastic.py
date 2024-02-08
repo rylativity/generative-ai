@@ -32,5 +32,5 @@ def index_document(index_name:str, doc:dict, id=None, create_missing_index=True)
     client.index(
         index=index_name,
         document=doc,
-        id=None
+        id=id
     )

@@ -2,9 +2,6 @@ streamlit
 transformers[agents]
 sentence-transformers
 langchain
-accelerate
-auto-gptq
-optimum
 chromadb-client
 opentelemetry-exporter-otlp
 unstructured[all-docs]
@@ -12,9 +9,8 @@ python-magic
 pdf2image
 pdfminer.six
 pytesseract
-diffusers
 python-dotenv
 streamlit-drawable-canvas
-autoawq
 elasticsearch
-# llama-cpp-python
+fastapi ##required for chromadb as of 2024-02-06
+llama-cpp-python

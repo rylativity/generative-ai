@@ -1,0 +1,5 @@
+autoawq
+accelerate
+auto-gptq
+optimum
+diffusers
