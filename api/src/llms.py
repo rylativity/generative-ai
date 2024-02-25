@@ -337,20 +337,24 @@ class AppModel:
                 **generation_config
             )
             
-            for token in res:
-                if token in stop_sequences:
+            full_text = ""
+            for chunk in res:
+                text = chunk["choices"][0]["text"]
+                if text in stop_sequences:
                     break
-                elif token in remove_tokens:
-                    token = None
-                yield json.dumps(token)
+                elif text in remove_tokens:
+                    text = None
+                full_text += text
+                yield text
 
             if log_inferences:
                 try:
                     payload = {
                         "prompt":input,
-                        "output":str(res),
+                        "output":full_text,
                         "timestamp":datetime.now().isoformat(),
-                        "generation_kwargs":generation_config
+                        "generation_kwargs":generation_config,
+                        "generation_kwargs.stream":True
                     }
                     index_document(
                         index_name=INFERENCE_LOGGING_INDEX_NAME,
