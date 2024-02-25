@@ -19,9 +19,16 @@ RUN useradd --create-home --shell /bin/bash fastapi && chown -R fastapi /app && 
 COPY requirements.txt .
 RUN --mount=type=cache,target=/root/.cache/pip \
     pip install -r requirements.txt && pip cache purge
+
+ARG PROCESSOR=gpu
+ENV PROCESSOR=${PROCESSOR}
+COPY ./dependency-setup.sh .
+RUN ./dependency-setup.sh
      
 COPY --chown=fastapi:root src/ /app/src/
 
 USER fastapi
+
+ENV LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/usr/local/cuda-12.3/compat"
 
 CMD ["uvicorn","src.main:app", "--host", "0.0.0.0", "--port", "5000", "--log-level", "debug", "--reload"]
