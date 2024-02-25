@@ -63,6 +63,26 @@ services:
             - driver: nvidia
               count: all
               capabilities: [gpu]
+  inference-api:
+    build: ./api
+    ports: 
+      - 5000:5000
+    environment:
+      - MODEL_NAME=TheBloke/Mistral-7B-Instruct-v0.2-GGUF
+      - MODEL_FILE=mistral-7b-instruct-v0.2.Q8_0.gguf
+      - MODEL_TYPE=GGUF
+      - TOKENIZER_MODEL_NAME=TheBloke/Mistral-7B-Instruct-v0.2-GPTQ
+      - N_GPU_LAYERS=30
+      - CONTEXT_LENGTH=32000
+      - LLAMA_CPP_THREADS=8
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:5000/api/health']
+      start_period: 7s
+    restart: always
+    volumes:
+      - ./api/src/:/app/src/
+      - ./.env:/workspace/.env
+      - ~/.cache/:/root/.cache/
   
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.12.0 #7.17.16
