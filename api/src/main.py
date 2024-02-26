@@ -47,16 +47,21 @@ def return_headers(request:Request):
 @app.post("/api/generate")
 async def generate(
         params:GenerationParameters,
-        stream:bool=False
     ):
 
-    if stream:
-        return StreamingResponse(
-            model.stream(
-                **dict(params)
-            )
-        )
-    else:
-        return model.run(
+    return model.run(
             **dict(params)
         )
+
+@app.post("/api/generate_stream")
+async def generate_stream(
+        params:GenerationParameters,
+    ):
+
+    return StreamingResponse(
+        model.stream(
+            **dict(params)
+        ),
+        media_type="application/x-ndjson"
+    )
+    
