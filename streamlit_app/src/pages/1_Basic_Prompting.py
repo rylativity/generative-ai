@@ -5,20 +5,19 @@ from langchain.prompts import PromptTemplate
 from torch.cuda import is_available as cuda_is_available
 from string import Formatter
 from components import model_settings
+from utils.inference import healthcheck, generate, generate_stream
 
 ## This will provide us with model selection and generation parameter components.
 model_settings()
 # Model is accessible from st.session_state.model, and generation parameters are accessible from st.session_state.generation_parameters
 
-if not "model" in st.session_state:
-    st.header("*Load a model to get started*")
+if not healthcheck():
+    st.error("Cannot connect to inference endpoint...")
 else:
     st.title("Basic Prompting")
 
-    model: AppModel = st.session_state.model
     generation_parameters: dict = st.session_state.generation_parameters
 
-    st.caption(f"Using model {model._model_name}")
     with st.container():
         use_custom_prompt = st.checkbox("Custom Prompt")
         if use_custom_prompt:
@@ -103,10 +102,10 @@ else:
             )
             if generate_submit and form_is_valid(error_banner=True):
                 with st.spinner("Generating"):
-                    output = model.run(
-                        inputs=inputs,
-                        prompt_template=prompt_template,
-                        **generation_parameters,
+                    input = prompt_template.format(**inputs)
+                    output = generate(
+                        input=input,
+                        generation_params=generation_parameters
                     )
 
         if generate_submit and form_is_valid():

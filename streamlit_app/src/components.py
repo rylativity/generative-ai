@@ -2,19 +2,19 @@ import streamlit as st
 import gc
 from models import CPU_MODELS, GPU_MODELS, FAVORITE_MODELS, AppModel, use_cuda
 
-MODEL_CONFIGS = CPU_MODELS + GPU_MODELS
+# MODEL_CONFIGS = CPU_MODELS + GPU_MODELS
 
-def unload_model():
-    if "model" in st.session_state:
-        st.session_state.model=None
-        gc.collect()
-        del st.session_state["model"]
-    if "model_config" in st.session_state:
-        del st.session_state.model_config
-    if "diffuser_model" in st.session_state:
-        st.session_state.diffuser_model=None
-        gc.collect()
-        del st.session_state["diffuser_model"]
+# def unload_model():
+#     if "model" in st.session_state:
+#         st.session_state.model=None
+#         gc.collect()
+#         del st.session_state["model"]
+#     if "model_config" in st.session_state:
+#         del st.session_state.model_config
+#     if "diffuser_model" in st.session_state:
+#         st.session_state.diffuser_model=None
+#         gc.collect()
+#         del st.session_state["diffuser_model"]
         
 def model_settings(include_gen_params=True, 
                    default_generation_kwarg_overrides={}, 
@@ -22,93 +22,93 @@ def model_settings(include_gen_params=True,
                    ):
     
     with st.sidebar:
-        if use_cuda():
-            st.success("CUDA Available")
-        else:
-            st.warning("CUDA Unavailable")
+        # if use_cuda():
+        #     st.success("CUDA Available")
+        # else:
+        #     st.warning("CUDA Unavailable")
 
-        device_map = st.selectbox(
-            "Device Map", 
-            options=["auto", "cpu"], 
-            help="'auto' will use GPU if available, while 'cpu' will always use CPU for inference, even if a GPU is available"
-            # disabled=True
-        )
-        favorites_only = st.checkbox("Favorite Models Only", value=True)
-        if device_map == "cpu" or not use_cuda():
-            st.session_state.available_model_names = [m["model_name"] for m in CPU_MODELS]
-        else:
-            st.session_state.available_model_names = [m["model_name"] for m in CPU_MODELS + GPU_MODELS]
+        # device_map = st.selectbox(
+        #     "Device Map", 
+        #     options=["auto", "cpu"], 
+        #     help="'auto' will use GPU if available, while 'cpu' will always use CPU for inference, even if a GPU is available"
+        #     # disabled=True
+        # )
+        # favorites_only = st.checkbox("Favorite Models Only", value=True)
+        # if device_map == "cpu" or not use_cuda():
+        #     st.session_state.available_model_names = [m["model_name"] for m in CPU_MODELS]
+        # else:
+        #     st.session_state.available_model_names = [m["model_name"] for m in CPU_MODELS + GPU_MODELS]
         
-        if favorites_only:
-            st.session_state.available_model_names = [model for model in st.session_state.available_model_names if model in FAVORITE_MODELS]
-        with st.form("model_selector"):
-            st.header("Model Selector",
-                      help="Select a Large Language Model to use. (Available options depend on device map. GPTQ models can only run on GPU)")
+        # if favorites_only:
+        #     st.session_state.available_model_names = [model for model in st.session_state.available_model_names if model in FAVORITE_MODELS]
+        # with st.form("model_selector"):
+        #     st.header("Model Selector",
+        #               help="Select a Large Language Model to use. (Available options depend on device map. GPTQ models can only run on GPU)")
 
-            # if cuda_is_available():
-            #     st.write(":white_check_mark: CUDA Available")
-            # else:
-            #     st.write(":no_entry_sign: CUDA Unavailable")
-            # if disable_cuda:
-            #     st.error("CUDA Disabled")
-            # else:
-            #     st.success("CUDA Enabled")
+        #     # if cuda_is_available():
+        #     #     st.write(":white_check_mark: CUDA Available")
+        #     # else:
+        #     #     st.write(":no_entry_sign: CUDA Unavailable")
+        #     # if disable_cuda:
+        #     #     st.error("CUDA Disabled")
+        #     # else:
+        #     #     st.success("CUDA Enabled")
 
-            model_name = st.selectbox(
-                "Model",
-                options=st.session_state.available_model_names,
-                placeholder="Select a model...",
-                key="model_name",
-            )
+        #     model_name = st.selectbox(
+        #         "Model",
+        #         options=st.session_state.available_model_names,
+        #         placeholder="Select a model...",
+        #         key="model_name",
+        #     )
 
-            context_length = st.number_input(
-                "Context Length",
-                min_value=1,
-                max_value=32000,
-                value=4096
-            )
-            llama_cpp_threads = st.number_input(
-                "Threads",
-                min_value=1,
-                max_value=32,
-                value=4
-            )
-            if use_cuda():
-                n_gpu_layers = st.number_input(
-                    "GPU Layers",
-                    min_value=0,
-                    max_value=200,
-                    value=10
-                )
-            else:
-                n_gpu_layers = 0
+        #     context_length = st.number_input(
+        #         "Context Length",
+        #         min_value=1,
+        #         max_value=32000,
+        #         value=4096
+        #     )
+        #     llama_cpp_threads = st.number_input(
+        #         "Threads",
+        #         min_value=1,
+        #         max_value=32,
+        #         value=4
+        #     )
+        #     if use_cuda():
+        #         n_gpu_layers = st.number_input(
+        #             "GPU Layers",
+        #             min_value=0,
+        #             max_value=200,
+        #             value=10
+        #         )
+        #     else:
+        #         n_gpu_layers = 0
 
 
-            load_model = st.form_submit_button("Load Model")
+        #     load_model = st.form_submit_button("Load Model")
 
-            if load_model:
-                unload_model()
-                model_config = [m for m in MODEL_CONFIGS if m["model_name"] == model_name][0]
-                model_config["device_map"] = device_map
-                model_config["context_length"] = context_length
-                model_config["llama_cpp_threads"] = llama_cpp_threads
-                model_config["n_gpu_layers"] = n_gpu_layers
-                with st.spinner("Downloading/Loading model (check Streamlit container logs for more detail)"):
-                    st.session_state["model"] = AppModel(**model_config)
-                    st.session_state["model_config"] = model_config
+        #     if load_model:
+        #         unload_model()
+        #         model_config = [m for m in MODEL_CONFIGS if m["model_name"] == model_name][0]
+        #         model_config["device_map"] = device_map
+        #         model_config["context_length"] = context_length
+        #         model_config["llama_cpp_threads"] = llama_cpp_threads
+        #         model_config["n_gpu_layers"] = n_gpu_layers
+        #         with st.spinner("Downloading/Loading model (check Streamlit container logs for more detail)"):
+        #             st.session_state["model"] = AppModel(**model_config)
+        #             st.session_state["model_config"] = model_config
     
-            if "model" in st.session_state:
-                st.success(f"Model Ready: {st.session_state.model._model_name}")
-                st.caption(f"Model kwargs: {st.session_state.model_config}")
-                st.link_button(
-                    "Model Card",
-                    url=f"https://huggingface.co/{st.session_state.model._model_name}",
-                )
-            else:
-                st.error("No Model Loaded")
-        if st.button("Unload Model"):
-                unload_model()
-                st.rerun()
+        #     if "model" in st.session_state:
+        #         st.success(f"Model Ready: {st.session_state.model._model_name}")
+        #         st.caption(f"Model kwargs: {st.session_state.model_config}")
+        #         st.link_button(
+        #             "Model Card",
+        #             url=f"https://huggingface.co/{st.session_state.model._model_name}",
+        #         )
+        #     else:
+        #         st.error("No Model Loaded")
+        # if st.button("Unload Model"):
+        #         unload_model()
+        #         st.rerun()
 
         if include_gen_params:
             if default_generation_kwarg_overrides:
