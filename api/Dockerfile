@@ -29,6 +29,4 @@ COPY --chown=fastapi:root src/ /app/src/
 
 USER fastapi
 
-ENV LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/usr/local/cuda/compat"
-
 CMD ["uvicorn","src.main:app", "--host", "0.0.0.0", "--port", "5000", "--log-level", "debug", "--reload"]
