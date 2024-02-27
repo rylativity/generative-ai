@@ -7,9 +7,11 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.llms.huggingface_pipeline import HuggingFacePipeline
 from transformers import pipeline
 from models import AppModel
-from prompt_templates import EXTRACTION_PROMPT_TEMPLATE
+from prompt_templates import EXTRACTION_PROMPT_TEMPLATE, SUMMARIZE_PROMPT_TEMPLATE
 from uuid import uuid4
 from components import model_settings
+
+from utils.inference import generate, healthcheck
 
 model_settings(include_gen_params=False)
 st.caption("Generation parameters disabled for this app")
@@ -43,7 +45,7 @@ with st.sidebar:
 
         elif upload_option == "file":
             uploaded_file = st.file_uploader(
-                "Upload a File *(PDF Only)*", key="uploaded_file"
+                "Upload a File *(PDF Only)*", key="uploaded_file", type=["pdf"]
             )
             file_submitted = st.form_submit_button()
             if file_submitted:
@@ -57,14 +59,11 @@ with st.sidebar:
                     st.session_state.document = doc
 
 st.title("Document Processing")
-if not "model" in st.session_state:
-    pass
+if not healthcheck():
+    st.error("Cannot connect to inference endpoint...")
+elif not st.session_state["document"]:
+    st.write("Add a document to get started...")
 else:
-    model = st.session_state.model
-if not st.session_state["document"] or not "model" in st.session_state:
-    st.write("Select a model and add a document to get started...")
-else:
-    st.caption(f"Using model {model._model_name}")
     st.divider()
     st.header(f"Document Source: {st.session_state['document'].metadata['source']}")
     with st.expander("Document Content", expanded=False):
@@ -78,39 +77,20 @@ else:
         horizontal=True,
     )
 
-    if not "model" in st.session_state:
-        st.write("Select a model to proceed")
-    else:
-        model: AppModel = st.session_state.model
-        llm = HuggingFacePipeline(
-                    pipeline=pipeline(
-                        task="text-generation", model=model._model, tokenizer=model._tokenizer,
-                        max_new_tokens=2000,
-                        repetition_penalty=1.1
-                    )
-                )
-        inputs = {"text": st.session_state["document"].page_content}
-                
-        token_length = len(
-            model._tokenizer.encode(st.session_state.document.page_content)
-        )
-        if token_length > 1500:
-            # chain_type = "refine"
-            splitter = RecursiveCharacterTextSplitter(chunk_size=1000)
-            docs = splitter.split_documents([st.session_state.document])
-        else:
-            # chain_type = "stuff"
-            docs = [st.session_state.document]
-
+    text = {"text": st.session_state["document"].page_content}
+            
     if processing_option == "Summarization":
         with st.form("Document Processing"):
-            chain_type = st.radio("Chain Type", options=["stuff", "refine", "map_reduce"], horizontal=True)
             submitted = st.form_submit_button("Summarize", use_container_width=True)
         if submitted:
             with st.spinner("Summarizing..."):
-                chain = load_summarize_chain(llm, chain_type=chain_type, verbose=True)
 
-                summary = chain.run(docs)
+                input = SUMMARIZE_PROMPT_TEMPLATE.format(text = st.session_state.document.page_content)
+                summary = generate(
+                    input=input,
+                    generation_params={"max_new_tokens":500}
+                )["text"]
+
                 st.write(summary)
 
     elif processing_option == "Entity Extraction":
@@ -124,9 +104,9 @@ else:
                 else:
                     with st.spinner("Extracting..."):
                         properties = properties.split(",")
-                        prompt = EXTRACTION_PROMPT_TEMPLATE.format(passage=st.session_state.document.page_content, properties=properties)
+                        input = EXTRACTION_PROMPT_TEMPLATE.format(passage=st.session_state.document.page_content, properties=properties)
                         # chain = create_extraction_chain(schema=schema, llm=llm, verbose=True)
-                        extraction_result = llm(prompt)
+                        extraction_result = generate(input=input, generation_params={"max_new_tokens":500})
                         st.write(extraction_result)
         
     elif processing_option == "Fact Extraction":

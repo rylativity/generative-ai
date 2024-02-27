@@ -89,7 +89,7 @@ Properties:
 animal,color
 
 Extracted Entites (JSON):
-[{{"animal":"cat","color":"brown"}},{{"animal":"mouse","color":"blue"}}]
+[{{"entity":"animal","value":"cat"}},{{"entity":"color","value":"brown"}},{{"entity":"animal","value":"mouse"}},{{"entity":"color","value":"blue"}}]
 
 Passage:
 {passage}

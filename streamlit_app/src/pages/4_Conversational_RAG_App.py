@@ -20,6 +20,7 @@ from prompt_templates import (
     CHAT_PROMPT_TEMPLATE,
 )
 from components import model_settings
+from utils.inference import generate, healthcheck
 
 FILES_BASE_DIR = "./uploaded_files/"
 SOURCE_DOCS_DIR = f"{FILES_BASE_DIR}source/"
@@ -242,14 +243,11 @@ with st.sidebar:
         )
 
 st.title("Conversational Retrieval Augmented Generation")
-if not "model" in st.session_state:
-    st.header("*Load a model to get started...*")
+if not healthcheck():
+    st.error("Cannot connect to inference endpoint...")
 else:
-    model: AppModel = st.session_state.model
     generation_parameters: dict = st.session_state.generation_parameters
     st.caption(f"Found {num_docs} split documents")
-
-    st.caption(f"Using model {model._model_name}")
 
     # st.caption(f"Using document {st.session_state.selected_document}")
 
@@ -298,6 +296,7 @@ else:
             with st.spinner("..."):
                 if not len(st.session_state.messages) > 1:
                     condensed_input = prompt
+                    messages_history_string = condensed_input
                 else:
                     ## CONDENSE THE CHAT INPUT
                     messages_history_string = "\n\n".join(
@@ -306,11 +305,11 @@ else:
                             for message in st.session_state.messages
                         ]
                     )
-                    response = model.run(
-                        inputs={"chat_history": messages_history_string, "input": prompt},
-                        prompt_template=CONDENSE_QUESTION_PROMPT_TEMPLATE,
-                        # stop_sequences=["User:"],
-                        **generation_parameters,
+                    input = CONDENSE_QUESTION_PROMPT_TEMPLATE.format(chat_history=messages_history_string, input=prompt)
+                    # generation_parameters["stop_sequences"] = stop_sequences
+                    response = generate(
+                        input=input,
+                        generation_params=generation_parameters,
                     )
                     condensed_input = response["text"]
                     if return_intermediate_question:
@@ -336,18 +335,18 @@ else:
                 stop_sequences = ["User:"]
                 ## RAG PRROMPT CHAT MODEL
                 if relevant_documents:
-                    response = model.run(
-                        inputs={"context": context_string, "input": condensed_input},
-                        prompt_template=RAG_PROMPT_TEMPLATE,
-                        stop_sequences=stop_sequences,
-                        **generation_parameters,
+                    input = RAG_PROMPT_TEMPLATE.format(context=context_string, input=condensed_input)
+                    generation_parameters["stop_sequences"] = stop_sequences
+                    response = generate(
+                        input=input,
+                        generation_params=generation_parameters,
                     )["text"]
                 else:
-                    response = model.run(
-                        inputs={"messages": messages_history_string},
-                        prompt_template=CHAT_PROMPT_TEMPLATE,
-                        stop_sequences=stop_sequences,
-                        **generation_parameters,
+                    input = CHAT_PROMPT_TEMPLATE.format(messages=messages_history_string)
+                    generation_parameters["stop_sequences"] = stop_sequences
+                    response = generate(
+                        input=input,
+                        generation_params=generation_parameters,
                     )["text"]
                 message_placeholder.markdown(response)
 

@@ -3,6 +3,7 @@ import streamlit as st
 from models import AppModel
 from prompt_templates import CHAT_PROMPT_TEMPLATE
 from components import model_settings
+from utils.inference import generate, healthcheck
 
 model_settings(
     default_generation_kwarg_overrides={
@@ -12,14 +13,12 @@ model_settings(
     }
 )
 
-if not "model" in st.session_state:
-    st.header("*Load a model to get started*")
+if not healthcheck():
+    st.error("Cannot connect to inference endpoint...")
 else:
-    model: AppModel = st.session_state.model
     generation_parameters: dict = st.session_state.generation_parameters
 
     st.title("ChatBot")
-    st.caption(f"Using model {model._model_name}")
     st.divider()
 
     if "messages" not in st.session_state:
@@ -46,11 +45,11 @@ else:
                         for message in st.session_state.messages
                     ]
                 )
-                response = model.run(
-                    inputs={"messages": messages_history_string},
-                    prompt_template=CHAT_PROMPT_TEMPLATE,
-                    stop_sequences=["User:"],
-                    **generation_parameters,
+                input = CHAT_PROMPT_TEMPLATE.format(messages=messages_history_string)
+                generation_parameters["stop_sequences"] = ["User:"]
+                response = generate(
+                    input=input,
+                    generation_params=generation_parameters
                 )["text"]
             message_placeholder.markdown(response)
         st.session_state.messages.append({"role": "assistant", "content": response})

@@ -16,6 +16,7 @@ from torch.cuda import is_available as cuda_is_available
 from models import AppModel
 from prompt_templates import RAG_PROMPT_TEMPLATE
 from components import model_settings
+from utils.inference import generate, healthcheck
 
 FILES_BASE_DIR = "./uploaded_files/"
 SOURCE_DOCS_DIR = f"{FILES_BASE_DIR}source/"
@@ -227,14 +228,12 @@ with st.sidebar:
         )
 
 st.title("Retrieval Augmented Generation")
-if not "model" in st.session_state:
-    st.header("*Load a model to get started...*")
+if not healthcheck():
+    st.error("Cannot connect to inference endpoint...")
 else:
-    model: AppModel = st.session_state.model
     generation_parameters: dict = st.session_state.generation_parameters
     st.caption(f"Found {num_docs} split documents")
 
-    st.caption(f"Using model {model._model_name}")
 
     # st.caption(f"Using document {st.session_state.selected_document}")
 
@@ -265,10 +264,10 @@ else:
                     st.caption("(return sources to see chunk content and metadata)")
             context_string = "\n\n".join(relevant_documents)
             with st.spinner("Generating response..."):
-                response = model.run(
-                    inputs={"input": question, "context": context_string},
-                    prompt_template=RAG_PROMPT_TEMPLATE,
-                    **generation_parameters,
+                input = RAG_PROMPT_TEMPLATE.format(input=question, context=context_string)
+                response = generate(
+                    input=input,
+                    generation_params=generation_parameters,
                 )
             st.write(generation_parameters)
             st.header("Answer")
