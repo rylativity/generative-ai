@@ -10,13 +10,13 @@ services:
       - ./jupyter/notebooks/:/workspace/notebooks/
       - ./.env:/workspace/.env
       - ~/.cache/:/root/.cache/
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: 1
-              capabilities: [gpu]
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
   chroma:
     image: chromadb/chroma
     command: uvicorn chromadb.app:app --reload --workers 1 --host 0.0.0.0 --port 8000 --log-config chromadb/log_config.yml
@@ -56,13 +56,13 @@ services:
     volumes:
       - ./streamlit_app/:/app/
       - ~/.cache/:/root/.cache/
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: all
-              capabilities: [gpu]
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: all
+    #           capabilities: [gpu]
   inference-api:
     build: 
       context: ./api
@@ -73,7 +73,7 @@ services:
       - 5000:5000
     environment:
       - MODEL_NAME=TheBloke/Mistral-7B-Instruct-v0.2-GGUF
-      - MODEL_FILE=mistral-7b-instruct-v0.2.Q8_0.gguf
+      - MODEL_FILE=mistral-7b-instruct-v0.2.Q4_K_M.gguf
       - MODEL_TYPE=GGUF
       - TOKENIZER_MODEL_NAME=TheBloke/Mistral-7B-Instruct-v0.2-GPTQ
       - N_GPU_LAYERS=30
@@ -87,13 +87,13 @@ services:
       - ./api/src/:/app/src/
       - ./.env:/workspace/.env
       - ~/.cache/:/home/fastapi/.cache/
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: all
-              capabilities: [gpu]
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: all
+    #           capabilities: [gpu]
   
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.12.0 #7.17.16

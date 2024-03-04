@@ -291,7 +291,6 @@ class AppModel:
                 )
             except Exception as e:
                 log.error(e)
-                raise e
             
         return output
 
@@ -364,7 +363,7 @@ class AppModel:
                     )
                 except Exception as e:
                     log.error(e)
-                    raise e
+                    
         else:
             raise Exception("Only supports GGUF models")
 
