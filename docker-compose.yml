@@ -64,7 +64,11 @@ services:
               count: all
               capabilities: [gpu]
   inference-api:
-    build: ./api
+    build: 
+      context: ./api
+      args:
+        - PROCESSOR=cpu
+      #  - PROCESSOR=gpu
     ports: 
       - 5000:5000
     environment:
