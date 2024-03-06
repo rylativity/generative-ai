@@ -1,6 +1,5 @@
 import streamlit as st
 import gc
-from models import CPU_MODELS, GPU_MODELS, FAVORITE_MODELS, AppModel, use_cuda
 
 # MODEL_CONFIGS = CPU_MODELS + GPU_MODELS
 

@@ -1,21 +1,24 @@
-FROM python:3.10-bookworm
+FROM nvidia/cuda:12.3.1-devel-ubuntu22.04
+
+SHELL ["/bin/bash", "-c"]
+
+RUN apt-get update && apt-get install -y \
+        python3-dev python3-pip \
+        curl \
+        build-essential \
+        software-properties-common \
+        # libmagic1 \
+        # libgl1&& \
+    && rm -rf /var/lib/apt/lists/*
 
 COPY ./requirements.txt .
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install -r requirements.txt
 
-RUN pip install -r requirements.txt
-
-## Install CUDA Toolkit (Includes drivers and SDK needed for building llama-cpp-python with CUDA support)
-RUN apt-get update && apt-get install -y software-properties-common && \
-    wget https://developer.download.nvidia.com/compute/cuda/12.3.1/local_installers/cuda-repo-debian12-12-3-local_12.3.1-545.23.08-1_amd64.deb && \
-    dpkg -i cuda-repo-debian12-12-3-local_12.3.1-545.23.08-1_amd64.deb && \
-    cp /var/cuda-repo-debian12-12-3-local/cuda-*-keyring.gpg /usr/share/keyrings/ && \
-    add-apt-repository contrib && \
-    apt-get update && \
-    apt-get -y install cuda-toolkit-12-3 
-
-#Install llama-cpp-python with CUDA Support
-RUN CUDACXX=/usr/local/cuda-12/bin/nvcc CMAKE_ARGS="-DLLAMA_CUBLAS=on -DCMAKE_CUDA_ARCHITECTURES=all-major" FORCE_CMAKE=1 \
-    pip install llama-cpp-python --no-cache-dir --force-reinstall --upgrade
+ARG PROCESSOR=cpu
+ENV PROCESSOR=${PROCESSOR}
+COPY ./dependency-setup.sh .
+RUN ./dependency-setup.sh
 
 WORKDIR /workspace
 

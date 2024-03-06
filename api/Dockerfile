@@ -18,7 +18,7 @@ RUN useradd --create-home --shell /bin/bash fastapi && chown -R fastapi /app && 
 
 COPY requirements.txt .
 RUN --mount=type=cache,target=/root/.cache/pip \
-    pip install -r requirements.txt && pip cache purge
+    pip install -r requirements.txt
 
 ARG PROCESSOR=cpu
 ENV PROCESSOR=${PROCESSOR}

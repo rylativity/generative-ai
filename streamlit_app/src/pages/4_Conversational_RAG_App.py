@@ -13,7 +13,6 @@ from langchain.docstore.document import Document
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from torch.cuda import is_available as cuda_is_available
 
-from models import AppModel
 from prompt_templates import (
     RAG_PROMPT_TEMPLATE,
     CONDENSE_QUESTION_PROMPT_TEMPLATE,
@@ -268,7 +267,7 @@ else:
         "Max Similarity Distance",
         min_value=0.01,
         max_value=None,
-        value=2.0,
+        value=1.0,
         help="Maximum L2 distance between query and matching document to consider adding the document to the context (limited by Max Context Document Chunks value). Lower scores indicate a better match.",
     )
 
