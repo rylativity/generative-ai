@@ -64,9 +64,9 @@ services:
       - MODEL_FILE=mistral-7b-instruct-v0.2.Q4_K_M.gguf
       - MODEL_TYPE=GGUF
       - TOKENIZER_MODEL_NAME=TheBloke/Mistral-7B-Instruct-v0.2-GPTQ
-      - N_GPU_LAYERS=30
-      - CONTEXT_LENGTH=32000
-      - LLAMA_CPP_THREADS=8
+      - N_GPU_LAYERS=0
+      - CONTEXT_LENGTH=8192
+      - LLAMA_CPP_THREADS=4
     healthcheck:
       test: ['CMD', 'curl', '-f', 'http://localhost:5000/api/health']
       start_period: 7s

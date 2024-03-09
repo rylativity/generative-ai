@@ -19,7 +19,7 @@ from prompt_templates import (
     CHAT_PROMPT_TEMPLATE,
 )
 from components import model_settings
-from utils.inference import generate, healthcheck
+from utils.inference import generate, generate_stream, healthcheck
 
 FILES_BASE_DIR = "./uploaded_files/"
 SOURCE_DOCS_DIR = f"{FILES_BASE_DIR}source/"
@@ -336,18 +336,17 @@ else:
                 if relevant_documents:
                     input = RAG_PROMPT_TEMPLATE.format(context=context_string, input=condensed_input)
                     generation_parameters["stop_sequences"] = stop_sequences
-                    response = generate(
-                        input=input,
-                        generation_params=generation_parameters,
-                    )["text"]
+                    
                 else:
                     input = CHAT_PROMPT_TEMPLATE.format(messages=messages_history_string)
                     generation_parameters["stop_sequences"] = stop_sequences
-                    response = generate(
+                
+                response = generate_stream(
                         input=input,
                         generation_params=generation_parameters,
-                    )["text"]
-                message_placeholder.markdown(response)
+                    )
+                
+                response_msg = message_placeholder.write_stream(response)
 
                 if return_sources and len(relevant_documents) > 0:
                     try:
@@ -362,5 +361,5 @@ else:
                     except NameError:
                         pass
 
-            st.session_state.messages.append({"role": "assistant", "content": response})
+            st.session_state.messages.append({"role": "assistant", "content": response_msg})
     st.button("Clear chat history", on_click=clear_messages)

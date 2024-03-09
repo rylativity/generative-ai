@@ -13,7 +13,7 @@ from langchain.docstore.document import Document
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from torch.cuda import is_available as cuda_is_available
 
-from models import AppModel
+
 from prompt_templates import RAG_PROMPT_TEMPLATE
 from components import model_settings
 from utils.inference import generate, healthcheck

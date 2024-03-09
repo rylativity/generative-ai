@@ -1,5 +1,5 @@
 import streamlit as st
-from models import AppModel
+
 from prompt_templates import LLAMA2_DEFAULT
 from langchain.prompts import PromptTemplate
 from torch.cuda import is_available as cuda_is_available
@@ -7,7 +7,7 @@ from string import Formatter
 from components import model_settings
 from utils.inference import healthcheck, generate, generate_stream
 
-## This will provide us with model selection and generation parameter components.
+## This will providfe us with model selection and generation parameter components.
 model_settings()
 # Model is accessible from st.session_state.model, and generation parameters are accessible from st.session_state.generation_parameters
 

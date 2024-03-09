@@ -39,7 +39,7 @@ def generate_stream(input:str, generation_params = DEFAULT_GENERATION_PARAMS, en
 
     with requests.post(url=endpoint, headers=HEADERS, data=json.dumps(data), stream=True) as r:
             for chunk in r.iter_lines(decode_unicode=True):
-                yield json.loads(chunk.decode("utf8"))
+                yield json.loads(chunk.decode("utf8"))["text"]
 
 
 def generate(input:str, generation_params = DEFAULT_GENERATION_PARAMS, endpoint=INFERENCE_API_GENERATION_ENDPOINT_URL):

@@ -6,7 +6,7 @@ from langchain.docstore.document import Document
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.llms.huggingface_pipeline import HuggingFacePipeline
 from transformers import pipeline
-from models import AppModel
+
 from prompt_templates import EXTRACTION_PROMPT_TEMPLATE, SUMMARIZE_PROMPT_TEMPLATE
 from uuid import uuid4
 from components import model_settings
