@@ -11,7 +11,7 @@
       >
       <div class="q-pa-md">
         <q-toggle
-          v-model="params.doSample"
+          v-model="doSample"
           color="primary"
           keep-color
         />
@@ -21,7 +21,7 @@
         <q-input
           filled
           type="number"
-          v-model="params.minNewTokens"
+          v-model="minNewTokens"
           label="Your age *"
           lazy-rules
           :rules="[
@@ -43,18 +43,31 @@
   
 <script setup lang="ts">
 // import { computed, ref } from 'vue';
-import { GenerationParams } from 'components/models';
-import { reactive } from 'vue';
+// import { GenerationParams } from 'components/models';
+// import { reactive } from 'vue';
+import { storeToRefs } from 'pinia';
+import { generationParamsStore } from 'src/stores/store';
 
-const params = reactive(<GenerationParams>({
-  doSample:true,
-  minNewTokens:1,
-  maxNewTokens:25,
-  repetitionPenalty:1.0,
-  temperature:0.7,
-  topP:1.0,
-  topK:50,
-}))
+const store = generationParamsStore();
+
+const {
+  doSample,
+  minNewTokens,
+  // maxNewTokens,
+  // repetitionPenalty,
+  // temperature,
+  // topP,
+  // topK,
+} = storeToRefs(store);
+// const params = reactive(<GenerationParams>({
+//   doSample:true,
+//   minNewTokens:1,
+//   maxNewTokens:25,
+//   repetitionPenalty:1.0,
+//   temperature:0.7,
+//   topP:1.0,
+//   topK:50,
+// }))
 
 // const todoCount = computed(() => props.todos.length);
-  </script>
+</script>

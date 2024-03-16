@@ -9,9 +9,9 @@
     <q-separator>
 
     </q-separator>
-    <generation-params-form>
+    <generation-params-settings-component>
       
-    </generation-params-form>
+    </generation-params-settings-component>
   </q-page>
 </template>
 
@@ -19,12 +19,12 @@
 import { ref } from 'vue';
 import { Todo, Meta } from 'components/models';
 import ExampleComponent from 'components/ExampleComponent.vue';
-import GenerationParamsForm from 'components/GenerationParamsForm.vue';
-
+import GenerationParamsSettingsComponent from 'components/GenerationParamsSettingsComponent.vue';
 
 defineOptions({
   name: 'IndexPage'
 });
+
 
 const todos = ref<Todo[]>([
   {
