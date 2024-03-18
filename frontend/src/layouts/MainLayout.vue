@@ -15,7 +15,29 @@
           Quasar App
         </q-toolbar-title>
 
-        <div>Quasar v{{ $q.version }}</div>
+        <q-btn @click="displayGenerationParams = !displayGenerationParams">
+          <q-tooltip>
+            Generation Parameter Settings
+          </q-tooltip>
+          <q-icon size="xs" name="settings_input_component" />
+        </q-btn>
+
+        &nbsp;&nbsp;
+
+        <q-btn 
+          @click="apiStatus = !apiStatus"
+          :color="apiStatus ? 'green' : 'red'"
+          >
+          <q-tooltip>
+            <span v-if=apiStatus>
+              Inference API Connected
+            </span>
+            <span v-else>
+              Inference API Disconnected
+            </span>
+          </q-tooltip>
+          <q-icon size="xs" :name="apiStatus ? 'check_circle' : 'build_circle'" />
+        </q-btn>
       </q-toolbar>
     </q-header>
 
@@ -39,6 +61,12 @@
       </q-list>
     </q-drawer>
 
+    <q-dialog v-model="displayGenerationParams">
+      <GenerationParamsModal>
+
+      </GenerationParamsModal>
+    </q-dialog>
+
     <q-page-container>
       <router-view />
     </q-page-container>
@@ -48,10 +76,13 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import EssentialLink, { EssentialLinkProps } from 'components/EssentialLink.vue';
+import GenerationParamsModal from 'src/components/GenerationParamsSettingsComponent.vue';
 
 defineOptions({
   name: 'MainLayout'
 });
+
+const displayGenerationParams = ref(false)
 
 const linksList: EssentialLinkProps[] = [
   {
@@ -103,4 +134,6 @@ const leftDrawerOpen = ref(false);
 function toggleLeftDrawer () {
   leftDrawerOpen.value = !leftDrawerOpen.value;
 }
+
+const apiStatus = ref(true)
 </script>

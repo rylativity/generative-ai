@@ -1,9 +1,9 @@
 <template>
   <q-page class="row items-center justify-evenly">
 
-    <generation-params-settings-component>
-      
-    </generation-params-settings-component>
+    <h3>
+      INDEX PAGE CONTENT
+    </h3>
 
     <p>{{ refs }}</p>
   </q-page>
@@ -13,7 +13,6 @@
 import { storeToRefs } from 'pinia';
 
 import { useGenerationParamsStore } from 'src/stores/store';
-import GenerationParamsSettingsComponent from 'components/GenerationParamsSettingsComponent.vue';
 
 defineOptions({
   name: 'IndexPage'
