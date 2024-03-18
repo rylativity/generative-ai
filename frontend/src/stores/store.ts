@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 
-export const generationParamsStore = defineStore('generationParams', {
+export const useGenerationParamsStore = defineStore('generationParams', {
   state: () => ({
       doSample:true,
       minNewTokens:1,
