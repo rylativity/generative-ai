@@ -39,7 +39,8 @@
         <q-input
           filled
           type="number"
-          v-model.number="repetitionPenalty"
+          step="0.01"
+          v-model="repetitionPenalty"
           label="Repetition Penalty"
           lazy-rules
           :rules="[
@@ -51,6 +52,7 @@
         <q-input
           filled
           type="number"
+          step="0.01"
           v-model="topP"
           label="Top P"
           lazy-rules
@@ -75,6 +77,7 @@
         <q-input
           filled
           type="number"
+          step="0.01"
           v-model="temperature"
           label="Temperature"
           lazy-rules
