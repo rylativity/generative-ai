@@ -53,19 +53,40 @@
           Essential Links
         </q-item-label>
 
-        <EssentialLink
+        <!-- <RouterLink 
+          v-for="route in routeNames" 
+          :key="route"
+          :to="{name:route}">
+          {{ route }}
+        </RouterLink> -->
+
+        <PageRoute 
+          v-for="route in routeNames"
+          :key="route"
+          :route-name="route">
+        </PageRoute>
+
+
+
+        <!-- <EssentialLink
           v-for="link in linksList"
           :key="link.title"
           v-bind="link"
-        />
+        /> -->
       </q-list>
     </q-drawer>
 
-    <q-dialog v-model="displayGenerationParams">
-      <GenerationParamsModal>
+    <q-drawer 
+      side="right" 
+      v-model="displayGenerationParams">
+      <GenerationParamsSettings>
 
-      </GenerationParamsModal>
-    </q-dialog>
+      </GenerationParamsSettings>
+
+      <q-btn @click="displayGenerationParams = !displayGenerationParams">
+        Close
+      </q-btn>
+    </q-drawer>
 
     <q-page-container>
       <router-view />
@@ -75,8 +96,9 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import EssentialLink, { EssentialLinkProps } from 'components/EssentialLink.vue';
-import GenerationParamsModal from 'src/components/GenerationParamsSettingsComponent.vue';
+import GenerationParamsSettings from 'src/components/GenerationParamsSettingsComponent.vue';
+import routes from 'src/router/routes';
+import PageRoute from 'src/components/PageRoute.vue';
 
 defineOptions({
   name: 'MainLayout'
@@ -84,50 +106,12 @@ defineOptions({
 
 const displayGenerationParams = ref(false)
 
-const linksList: EssentialLinkProps[] = [
-  {
-    title: 'Docs',
-    caption: 'quasar.dev',
-    icon: 'school',
-    link: 'https://quasar.dev'
-  },
-  {
-    title: 'Github',
-    caption: 'github.com/quasarframework',
-    icon: 'code',
-    link: 'https://github.com/quasarframework'
-  },
-  {
-    title: 'Discord Chat Channel',
-    caption: 'chat.quasar.dev',
-    icon: 'chat',
-    link: 'https://chat.quasar.dev'
-  },
-  {
-    title: 'Forum',
-    caption: 'forum.quasar.dev',
-    icon: 'record_voice_over',
-    link: 'https://forum.quasar.dev'
-  },
-  {
-    title: 'Twitter',
-    caption: '@quasarframework',
-    icon: 'rss_feed',
-    link: 'https://twitter.quasar.dev'
-  },
-  {
-    title: 'Facebook',
-    caption: '@QuasarFramework',
-    icon: 'public',
-    link: 'https://facebook.quasar.dev'
-  },
-  {
-    title: 'Quasar Awesome',
-    caption: 'Community Quasar projects',
-    icon: 'favorite',
-    link: 'https://awesome.quasar.dev'
-  }
-];
+const rootRoute = routes.find(route => route.name === 'root')
+const routeNames = rootRoute?.children?.map( (route) => {
+  return route.name?.toString()
+})
+
+console.log(routeNames)
 
 const leftDrawerOpen = ref(false);
 
@@ -137,3 +121,9 @@ function toggleLeftDrawer () {
 
 const apiStatus = ref(true)
 </script>
+
+<style scoped>
+q-select {
+  max-width: 1%;
+}
+</style>
