@@ -1,6 +1,8 @@
 from fastapi import FastAPI, Response, Request
 from fastapi.responses import RedirectResponse, StreamingResponse
 from fastapi.logger import logger
+from starlette.middleware import Middleware
+from starlette.middleware.cors import CORSMiddleware
 
 from datetime import datetime
 from io import BytesIO
@@ -22,7 +24,12 @@ else:
 
 model = AppModel(**MODEL_KWARGS)
 
-app = FastAPI(debug=True)
+app = FastAPI(
+    middleware=[
+        Middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"])
+    ],
+    debug=True
+    )
 
 @app.get("/")
 async def root():

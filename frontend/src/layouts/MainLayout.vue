@@ -12,7 +12,7 @@
         />
 
         <q-toolbar-title>
-          Quasar App
+          Generative AI
         </q-toolbar-title>
 
         <q-btn @click="displayGenerationParams = !displayGenerationParams">
@@ -50,7 +50,7 @@
         <q-item-label
           header
         >
-          Essential Links
+          Application Interfaces
         </q-item-label>
 
         <!-- <RouterLink 
