@@ -282,7 +282,8 @@ class AppModel:
                 payload = {
                     "prompt":original_prompt,
                     "output":generated_text,
-                    "timestamp":datetime.now().isoformat()
+                    "timestamp":datetime.now().isoformat(),
+                    "generation_params":generation_config
                 }
                 index_document(
                     index_name=INFERENCE_LOGGING_INDEX_NAME,
