@@ -15,6 +15,21 @@
           Generative AI
         </q-toolbar-title>
 
+        <a href="http://localhost:5601"
+          target="_blank">
+          <q-btn 
+          >
+          <q-tooltip>
+            <span>
+              Logging Dashboard
+            </span>
+          </q-tooltip>
+          <q-icon size="xs" name="dashboard" />
+        </q-btn>
+        </a>
+
+        &nbsp;&nbsp;
+
         <q-btn @click="displayGenerationParams = !displayGenerationParams">
           <q-tooltip>
             Generation Parameter Settings
@@ -38,6 +53,7 @@
           </q-tooltip>
           <q-icon size="xs" :name="apiStatus ? 'check_circle' : 'build_circle'" />
         </q-btn>
+        
       </q-toolbar>
     </q-header>
 
@@ -76,16 +92,17 @@
       </q-list>
     </q-drawer>
 
+
+
+    <q-btn @click="displayGenerationParams = !displayGenerationParams">
+        Close
+    </q-btn>
     <q-drawer 
       side="right" 
       v-model="displayGenerationParams">
       <GenerationParamsSettings>
 
       </GenerationParamsSettings>
-
-      <q-btn @click="displayGenerationParams = !displayGenerationParams">
-        Close
-      </q-btn>
     </q-drawer>
 
     <q-page-container>

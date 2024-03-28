@@ -19,10 +19,7 @@ export async function generate(input:string,){
         'top_p':refs.topP.value,
         'top_k':refs.topK.value,
         }
-    console.log('generating')
-    console.log(generationParams)
     const payload = {...generationParams, 'input':input}
-    console.log(payload)
     const response = await api.post(
         '/api/generate', payload
         )
