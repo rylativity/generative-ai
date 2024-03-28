@@ -1,8 +1,6 @@
 <template>
   <q-page padding>
-    <h3>
-      Chat Page Content Here
-    </h3>
+    <chat-interface/>
     <p> {{ refs }}</p>
     <h3 
       v-for="(message, i) in messages"
@@ -19,6 +17,7 @@
 
 <script setup lang="ts">
 import { generate } from 'src/utils/inference';
+import ChatInterface from 'src/components/ChatInterface.vue'
 import { reactive } from 'vue';
 import { storeToRefs } from 'pinia';
 
