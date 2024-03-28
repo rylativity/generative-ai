@@ -9,13 +9,10 @@
         :text="message.text"
         :sent="message.sent"
       />
-      <q-chat-message
-        name="Jane"
-        avatar="https://cdn.quasar.dev/img/avatar2.jpg"
-        :text="['doing fine, how r you?']"
-      />
+      <textarea v-model="chatInput">
+      </textarea>
       <q-btn
-      @click="sendMessage('Hi')">
+      @click="sendMessage(chatInput)">
 
     </q-btn>
     </div>
@@ -33,6 +30,7 @@ type ChatMessage = {
   sent:boolean
 }
 
+var chatInput:string
 var messages: ChatMessage[] = reactive([])
 
 function createUserMessage(message:string):ChatMessage {
@@ -48,7 +46,7 @@ async function sendMessage(message:string) {
 
   const userMessage = createUserMessage(message)
   messages.push(userMessage)
-  
+
   let response = await generate(message)
   
   const responseMessage: ChatMessage = {

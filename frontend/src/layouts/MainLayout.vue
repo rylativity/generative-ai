@@ -55,6 +55,10 @@
         </q-btn>
         
       </q-toolbar>
+      <text-caption>
+        Generation Params Settings:
+        {{ generationParamsRefs }}
+      </text-caption>
     </q-header>
 
     <q-drawer
@@ -116,10 +120,16 @@ import { ref } from 'vue';
 import GenerationParamsSettings from 'src/components/GenerationParamsSettingsComponent.vue';
 import routes from 'src/router/routes';
 import PageRoute from 'src/components/PageRoute.vue';
+import { useGenerationParamsStore} from 'src/stores/store';
+import { storeToRefs } from 'pinia';
 
 defineOptions({
   name: 'MainLayout'
 });
+
+const generationParamsStore = useGenerationParamsStore()
+
+const generationParamsRefs = storeToRefs(generationParamsStore)
 
 const displayGenerationParams = ref(false)
 
