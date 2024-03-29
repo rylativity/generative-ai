@@ -40,8 +40,9 @@
         &nbsp;&nbsp;
 
         <q-btn 
-          @click="apiStatus = !apiStatus"
+          @click="checkApiStatus"
           :color="apiStatus ? 'green' : 'red'"
+          :disable="apiStatus? true : false"
           >
           <q-tooltip>
             <span v-if=apiStatus>
@@ -120,8 +121,9 @@ import { ref } from 'vue';
 import GenerationParamsSettings from 'src/components/GenerationParamsSettingsComponent.vue';
 import routes from 'src/router/routes';
 import PageRoute from 'src/components/PageRoute.vue';
-import { useGenerationParamsStore} from 'src/stores/store';
+import { useGenerationParamsStore } from 'src/stores/store';
 import { storeToRefs } from 'pinia';
+import { healthcheck } from 'src/utils/inference';
 
 defineOptions({
   name: 'MainLayout'
@@ -146,7 +148,15 @@ function toggleLeftDrawer () {
   leftDrawerOpen.value = !leftDrawerOpen.value;
 }
 
-const apiStatus = ref(true)
+var apiStatus = ref(true)
+async function checkApiStatus() {
+  apiStatus.value = await healthcheck()
+  console.log(apiStatus.value)
+}
+
+setInterval(() => {
+  checkApiStatus()
+}, 10000)
 </script>
 
 <style scoped>

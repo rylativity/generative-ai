@@ -6,7 +6,6 @@ import { storeToRefs
  } from 'pinia'
 const generationParamsStore = useGenerationParamsStore()
 
-
 export async function generate(input:string,){
     const refs = storeToRefs(generationParamsStore);
 
@@ -42,4 +41,27 @@ export async function generate(input:string,){
             })
         })
     return response
+}
+
+export async function healthcheck() {
+    return api.get('/api/health')
+        .then( () => {
+            // Notify.create({
+            //     color:'positive',
+            //     position:'top',
+            //     message:'API Connected',
+            //     icon: 'success'
+            // })
+            return true
+        })
+        .catch( (error: Error | AxiosError) => {
+            console.log(error)
+            // Notify.create({
+            //     color:'negative',
+            //     position:'top',
+            //     message:'API NOT CONNECTED',
+            //     icon: 'report_problem'
+            // })
+            return false
+        })
 }
