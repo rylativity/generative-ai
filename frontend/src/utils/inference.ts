@@ -2,8 +2,7 @@ import { AxiosError, AxiosResponse } from 'axios'
 import { api } from 'boot/axios'
 import { Notify } from 'quasar'
 import { useGenerationParamsStore } from 'src/stores/store'
-import { storeToRefs
- } from 'pinia'
+import { storeToRefs } from 'pinia'
 const generationParamsStore = useGenerationParamsStore()
 
 export async function generate(input:string,){
@@ -43,25 +42,42 @@ export async function generate(input:string,){
     return response
 }
 
-export async function healthcheck() {
-    return api.get('/api/health')
-        .then( () => {
-            // Notify.create({
-            //     color:'positive',
-            //     position:'top',
-            //     message:'API Connected',
-            //     icon: 'success'
-            // })
-            return true
+export async function healthcheck(notification=false) {
+    return api.get('/api/health', {timeout:5000})
+        .then( (response) => {
+            if (response.status.toString().startsWith('2')){
+                if (notification) {
+                    Notify.create({
+                        color:'positive',
+                        position:'top',
+                        message:'API Connected',
+                        icon: 'success'
+                    })
+                }    
+                return true
+            }
+            else {
+                if (notification) {
+                    Notify.create({
+                        color:'negative',
+                        position:'top',
+                        message:'API NOT CONNECTED',
+                        icon: 'report_problem'
+                    })
+                }
+                return false
+            }
         })
         .catch( (error: Error | AxiosError) => {
             console.log(error)
-            // Notify.create({
-            //     color:'negative',
-            //     position:'top',
-            //     message:'API NOT CONNECTED',
-            //     icon: 'report_problem'
-            // })
+            if (notification) {
+                Notify.create({
+                    color:'negative',
+                    position:'top',
+                    message:'API NOT CONNECTED',
+                    icon: 'report_problem'
+                })
+            }
             return false
         })
 }

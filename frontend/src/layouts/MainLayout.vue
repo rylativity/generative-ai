@@ -40,9 +40,8 @@
         &nbsp;&nbsp;
 
         <q-btn 
-          @click="checkApiStatus"
+          @click="checkApiStatus(true)"
           :color="apiStatus ? 'green' : 'red'"
-          :disable="apiStatus? true : false"
           >
           <q-tooltip>
             <span v-if=apiStatus>
@@ -51,15 +50,18 @@
             <span v-else>
               Inference API Disconnected
             </span>
+            <span>
+              (last checked {{ lastChecked }})
+            </span>
           </q-tooltip>
           <q-icon size="xs" :name="apiStatus ? 'check_circle' : 'build_circle'" />
         </q-btn>
         
       </q-toolbar>
-      <text-caption>
+      <span>
         Generation Params Settings:
         {{ generationParamsRefs }}
-      </text-caption>
+      </span>
     </q-header>
 
     <q-drawer
@@ -149,9 +151,10 @@ function toggleLeftDrawer () {
 }
 
 var apiStatus = ref(true)
-async function checkApiStatus() {
-  apiStatus.value = await healthcheck()
-  console.log(apiStatus.value)
+var lastChecked = ref()
+async function checkApiStatus(notification=false) {
+  apiStatus.value = await healthcheck(notification=notification)
+  lastChecked.value = Date().toString()
 }
 
 setInterval(() => {
