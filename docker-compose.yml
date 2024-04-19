@@ -40,17 +40,26 @@ services:
       retries: 5
       start_period: 30s
   
-  streamlit:
-    build: 
-      context: ./streamlit_app/
-    environment:
-      - CHROMADB_HOST=chroma
-      - CHROMADB_PORT=8000
-    ports:
-      - 8501:8501
+  # streamlit:
+  #   build: 
+  #     context: ./streamlit_app/
+  #   environment:
+  #     - CHROMADB_HOST=chroma
+  #     - CHROMADB_PORT=8000
+  #   ports:
+  #     - 8501:8501
+  #   volumes:
+  #     - ./streamlit_app/:/app/
+  #     - ~/.cache/:/root/.cache/
+
+  frontend:
+    build: ./frontend
+    # environment:
+    #   - name=value
+    ports: 
+      - 8080:8080
     volumes:
-      - ./streamlit_app/:/app/
-      - ~/.cache/:/root/.cache/
+      - ./frontend/src/:/app/src/
   inference-api:
     image: generative-ai-inference-api-cpu
     build: 
@@ -60,10 +69,10 @@ services:
     ports: 
       - 5000:5000
     environment:
-      - MODEL_NAME=TheBloke/Mistral-7B-Instruct-v0.2-GGUF
-      - MODEL_FILE=mistral-7b-instruct-v0.2.Q4_K_M.gguf
+      - MODEL_NAME=NousResearch/Meta-Llama-3-8B-GGUF
+      - MODEL_FILE=Meta-Llama-3-8B-Q4_K_M.gguf
+      - TOKENIZER_MODEL_NAME=NousResearch/Meta-Llama-3-8B
       - MODEL_TYPE=GGUF
-      - TOKENIZER_MODEL_NAME=TheBloke/Mistral-7B-Instruct-v0.2-GPTQ
       - N_GPU_LAYERS=0
       - CONTEXT_LENGTH=8192
       - LLAMA_CPP_THREADS=4

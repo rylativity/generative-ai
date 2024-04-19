@@ -69,12 +69,18 @@ services:
     ports: 
       - 5000:5000
     environment:
-      - MODEL_NAME=TheBloke/Mistral-7B-Instruct-v0.2-GGUF
-      - MODEL_FILE=mistral-7b-instruct-v0.2.Q4_K_M.gguf
+      - MODEL_NAME=NousResearch/Meta-Llama-3-8B-GGUF
+      - MODEL_FILE=Meta-Llama-3-8B-Q4_K_M.gguf
+      - TOKENIZER_MODEL_NAME=NousResearch/Meta-Llama-3-8B
+      # - MODEL_NAME=TheBloke/Mistral-7B-Instruct-v0.2-GGUF
+      # - MODEL_FILE=mistral-7b-instruct-v0.2.Q4_K_M.gguf
+      # - MODEL_NAME=TheBloke/Mixtral-8x7B-Instruct-v0.1-GGUF
+      # - MODEL_FILE=mixtral-8x7b-instruct-v0.1.Q8_0.gguf
+      # - MODEL_FILE=mixtral-8x7b-instruct-v0.1.Q4_K_M.gguf
+      # - TOKENIZER_MODEL_NAME=TheBloke/Mixtral-8x7B-Instruct-v0.1-GPTQ
       - MODEL_TYPE=GGUF
-      - TOKENIZER_MODEL_NAME=TheBloke/Mistral-7B-Instruct-v0.2-GPTQ
       - N_GPU_LAYERS=30
-      - CONTEXT_LENGTH=32000
+      - CONTEXT_LENGTH=8192
       - LLAMA_CPP_THREADS=8
     healthcheck:
       test: ['CMD', 'curl', '-f', 'http://localhost:5000/api/health']
