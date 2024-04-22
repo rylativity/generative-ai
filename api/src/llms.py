@@ -341,12 +341,17 @@ class AppModel:
             for chunk in res:
                 token_obj = chunk["choices"][0]
                 text = token_obj["text"]
-                if text in stop_sequences:
-                    break
-                elif text in remove_tokens:
-                    text = None
+                
+                # Remove remove_tokens
+                if text in remove_tokens:
+                    text = ""
+                
                 full_text += text
                 yield json.dumps(token_obj)+"\n"
+
+                # Break on stop_sequences
+                if len([seq for seq in stop_sequences if seq in full_text]) > 0:
+                    break   
 
             if log_inferences:
                 try:

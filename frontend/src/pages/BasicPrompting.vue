@@ -1,12 +1,11 @@
 <template>
   <q-page padding>
-    <h3>
-      BASIC PROMPTING PAGE CONTENT HERE
-    </h3>
+    <PromptBuilder/>
   </q-page>
 </template>
 
 <script setup lang="ts">
+import PromptBuilder from 'components/PromptBuilder.vue'
 
 defineOptions({
   name: 'BasicPromptingPage'

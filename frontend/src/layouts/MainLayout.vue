@@ -151,7 +151,7 @@ function toggleLeftDrawer () {
 }
 
 var apiStatus = ref(true)
-var lastChecked = ref()
+var lastChecked = ref('Never')
 async function checkApiStatus(notification=false) {
   apiStatus.value = await healthcheck(notification=notification)
   lastChecked.value = Date().toString()

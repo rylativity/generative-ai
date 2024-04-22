@@ -40,6 +40,15 @@ services:
       retries: 5
       start_period: 30s
   
+  frontend:
+    build: ./frontend
+    # environment:
+    #   - name=value
+    ports: 
+      - 9000:9000
+    volumes:
+      - ./frontend/src/:/app/src/
+  
   # streamlit:
   #   build: 
   #     context: ./streamlit_app/
@@ -52,14 +61,6 @@ services:
   #     - ./streamlit_app/:/app/
   #     - ~/.cache/:/root/.cache/
 
-  frontend:
-    build: ./frontend
-    # environment:
-    #   - name=value
-    ports: 
-      - 8080:8080
-    volumes:
-      - ./frontend/src/:/app/src/
   inference-api:
     image: generative-ai-inference-api-cpu
     build: 

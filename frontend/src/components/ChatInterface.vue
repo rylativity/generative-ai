@@ -18,14 +18,24 @@
        <q-spinner-dots size="2rem" />
       </q-chat-message>
       
-      <q-input v-model="chatInput" @keydown.enter.prevent="sendMessage(chatInput)" outlined  label="Send a message">
+      <q-input id="chat-input" v-model="chatInput" @keyup.enter="sendMessage(chatInput)" outlined  label="Send a message">
         <template v-slot:after>
           <q-btn 
           @click="sendMessage(chatInput)"
           round dense flat icon="send" />
+          <q-btn
+          @click="clearChat"
+          round dense flat icon="refresh"
+          >
+            <q-tooltip>
+              <span>
+                Clear Chat
+              </span>
+            </q-tooltip>
+          </q-btn>
         </template>
       </q-input>
-      
+
     </div>
   </div>
 </template>
@@ -46,6 +56,10 @@ type ChatMessage = {
 
 var chatInput=''
 var messages: ChatMessage[] = reactive([])
+
+function clearChat() {
+  messages.length = 0
+}
 
 function createUserMessage(message:string):ChatMessage {
   return {

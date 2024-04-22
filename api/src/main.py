@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Response, Request
-from fastapi.responses import RedirectResponse, StreamingResponse
+from fastapi.responses import RedirectResponse, StreamingResponse, JSONResponse
 from fastapi.logger import logger
 from starlette.middleware import Middleware
 from starlette.middleware.cors import CORSMiddleware
@@ -39,12 +39,12 @@ async def root():
 
 @app.get('/api/health')
 def hello_world(request: Request):
-    headers = str(request.headers)
-    hostname = socket.gethostname()
-    resp = f'''<h1>Hello, from the Flask App in Docker!</h1>\n
-    This App is Running on Host: {hostname}
-    #<p>{headers}</p>'''
-    return Response(resp, status_code=200)
+    # headers = str(request.headers)
+    # hostname = socket.gethostname()
+    # resp = f'''<h1>Hello, from the Flask App in Docker!</h1>\n
+    # This App is Running on Host: {hostname}
+    # #<p>{headers}</p>'''
+    return JSONResponse({"status":"success"}, status_code=200)
 
 @app.get('/api/headers')
 def return_headers(request:Request):

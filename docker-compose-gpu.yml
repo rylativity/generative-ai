@@ -48,6 +48,15 @@ services:
       retries: 5
       start_period: 30s
   
+  frontend:
+    build: ./frontend
+    # environment:
+    #   - name=value
+    ports: 
+      - 9000:9000
+    volumes:
+      - ./frontend/src/:/app/src/
+  
   streamlit:
     build: 
       context: ./streamlit_app/
@@ -79,7 +88,7 @@ services:
       # - MODEL_FILE=mixtral-8x7b-instruct-v0.1.Q4_K_M.gguf
       # - TOKENIZER_MODEL_NAME=TheBloke/Mixtral-8x7B-Instruct-v0.1-GPTQ
       - MODEL_TYPE=GGUF
-      - N_GPU_LAYERS=30
+      - N_GPU_LAYERS=33
       - CONTEXT_LENGTH=8192
       - LLAMA_CPP_THREADS=8
     healthcheck:

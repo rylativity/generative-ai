@@ -10,6 +10,7 @@
 
 
 const { configure } = require('quasar/wrappers');
+const { mergeConfig } = require('vite')
 
 
 module.exports = configure(function (/* ctx */) {
@@ -49,6 +50,28 @@ module.exports = configure(function (/* ctx */) {
       target: {
         browser: [ 'es2019', 'edge88', 'firefox78', 'chrome87', 'safari13.1' ],
         node: 'node20'
+      },
+
+      extendViteConf (viteConf) {
+        // example: change the chunk size warning limit
+        viteConf.build = mergeConfig(viteConf.build, {
+          chunkSizeWarningLimit: 750
+        })
+
+        viteConf.server = mergeConfig(viteConf.server, {
+          fs: {
+              // Allow serving files from one level up to the project root
+              allow: ['..'],
+          },
+      })
+
+        
+        // equivalent of following vite.config.js/vite.config.ts:
+        // export default defineConfig({
+        //   build: {
+        //     chunkSizeWarningLimit: 750
+        //   }
+        // })
       },
 
       vueRouterMode: 'hash', // available values: 'hash', 'history'
