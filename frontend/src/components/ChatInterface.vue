@@ -79,11 +79,11 @@ function createMessageString(chatMessage:ChatMessage):string {
 function createChatPrompt(chatMessages:ChatMessage[], template=CHATPROMPTTEMPLATE){
   let messagesHistoryString:string
   if (!(chatMessages.length > 1)) {
-    messagesHistoryString = createMessageString(chatMessages[0])
+    messagesHistoryString = createMessageString(chatMessages[0]).trim()
   } else {
     messagesHistoryString = chatMessages.map((message) => {
       return createMessageString(message)
-    }).join('\n\n')
+    }).join('\n\n').trim()
   }
 
   return template(messagesHistoryString)
