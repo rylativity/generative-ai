@@ -6,3 +6,4 @@ transformers[torch]
 llama-cpp-python
 elasticsearch
 auto-gptq
+opensearch-py

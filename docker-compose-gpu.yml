@@ -1,5 +1,3 @@
-version: '3.9'
-
 services:
   jupyter:
     image: generative-ai-jupyter-gpu
@@ -78,11 +76,9 @@ services:
     ports: 
       - 5000:5000
     environment:
-      - MODEL_NAME=NousResearch/Meta-Llama-3-8B-GGUF
-      - MODEL_FILE=Meta-Llama-3-8B-Q4_K_M.gguf
-      - TOKENIZER_MODEL_NAME=NousResearch/Meta-Llama-3-8B
-      # - MODEL_NAME=TheBloke/Mistral-7B-Instruct-v0.2-GGUF
-      # - MODEL_FILE=mistral-7b-instruct-v0.2.Q4_K_M.gguf
+      - MODEL_NAME=TheBloke/Mistral-7B-Instruct-v0.2-GGUF
+      - MODEL_FILE=mistral-7b-instruct-v0.2.Q4_K_M.gguf
+      - TOKENIZER_MODEL_NAME=TheBloke/Mistral-7B-Instruct-v0.2-GPTQ
       # - MODEL_NAME=TheBloke/Mixtral-8x7B-Instruct-v0.1-GGUF
       # - MODEL_FILE=mixtral-8x7b-instruct-v0.1.Q8_0.gguf
       # - MODEL_FILE=mixtral-8x7b-instruct-v0.1.Q4_K_M.gguf
@@ -106,33 +102,64 @@ services:
             - driver: nvidia
               count: all
               capabilities: [gpu]
-  
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.12.0 #7.17.16
-    restart: always
+
+  opensearch: # This is also the hostname of the container within the Docker network (i.e. https://opensearch-node1/)
+    image: opensearchproject/opensearch:latest # Specifying the latest available image - modify if you want a specific version
     environment:
-      - xpack.security.enabled=false
+      # - OPENSEARCH_INITIAL_ADMIN_PASSWORD=El@sticSearch123
+      - DISABLE_SECURITY_PLUGIN=true
+      - DISABLE_INSTALL_DEMO_CONFIG=true
       - discovery.type=single-node
+      - bootstrap.memory_lock=true # Disable JVM heap memory swapping
+      - "OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx1g" # Set min and max JVM heap sizes to at least 50% of system RAM
     ulimits:
       memlock:
-        soft: -1
+        soft: -1 # Set memlock to unlimited (no soft or hard limit)
         hard: -1
       nofile:
-        soft: 65536
+        soft: 65536 # Maximum number of open files for the opensearch user - set to at least 65536
         hard: 65536
     volumes:
-      - elasticsearch-data:/usr/share/elasticsearch/data
+      - opensearch-data:/usr/share/opensearch/data # Creates volume called opensearch-data1 and mounts it to the container
     ports:
-      - 9200:9200
-  kibana:
-    image: docker.elastic.co/kibana/kibana:8.12.0 #7.17.16
-    restart: always
+      - 9200:9200 # REST API
+      - 9600:9600 # Performance Analyzer
+  opensearch-dashboards:
+    image: opensearchproject/opensearch-dashboards:latest # Make sure the version of opensearch-dashboards matches the version of opensearch installed on other nodes
+    ports:
+      - 5601:5601 # Map host port 5601 to container port 5601
+    expose:
+      - "5601" # Expose port 5601 for web access to OpenSearch Dashboards
     environment:
-      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200    # address of elasticsearch docker container which kibana will connect
-    ports:
-      - 5601:5601
-    depends_on:
-      - elasticsearch                                   # kibana will start when elasticsearch has started
+      OPENSEARCH_HOSTS: '["http://opensearch:9200"]' # Define the OpenSearch nodes that OpenSearch Dashboards will query
+      DISABLE_SECURITY_DASHBOARDS_PLUGIN: true
+  
+  # elasticsearch:
+  #   image: docker.elastic.co/elasticsearch/elasticsearch:8.12.0 #7.17.16
+  #   restart: always
+  #   environment:
+  #     - xpack.security.enabled=false
+  #     - discovery.type=single-node
+  #   ulimits:
+  #     memlock:
+  #       soft: -1
+  #       hard: -1
+  #     nofile:
+  #       soft: 65536
+  #       hard: 65536
+  #   volumes:
+  #     - elasticsearch-data:/usr/share/elasticsearch/data
+  #   ports:
+  #     - 9200:9200
+  # kibana:
+  #   image: docker.elastic.co/kibana/kibana:8.12.0 #7.17.16
+  #   restart: always
+  #   environment:
+  #     - ELASTICSEARCH_HOSTS=http://elasticsearch:9200    # address of elasticsearch docker container which kibana will connect
+  #   ports:
+  #     - 5601:5601
+  #   depends_on:
+  #     - elasticsearch                                   # kibana will start when elasticsearch has started
   
   # text-generation-inference:
   #   image: ghcr.io/huggingface/text-generation-inference
@@ -151,6 +178,7 @@ services:
 
 volumes:
   chroma-data:
-  elasticsearch-data:
+  # elasticsearch-data:
+  opensearch-data:
   tgi-data:
   

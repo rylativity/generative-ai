@@ -34,7 +34,8 @@ def healthcheck(endpoint=INFERENCE_API_HEALTHCHECK_ENDPOINT_URL):
 
 def generate_stream(input:str, generation_params = DEFAULT_GENERATION_PARAMS, endpoint=INFERENCE_API_GENERATION_STREAM_ENDPOINT_URL):
     
-    data = dict(generation_params)
+    data = dict(DEFAULT_GENERATION_PARAMS)
+    data.update(generation_params)
     data["input"] = input
 
     with requests.post(url=endpoint, headers=HEADERS, data=json.dumps(data), stream=True) as r:

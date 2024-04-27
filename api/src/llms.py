@@ -11,7 +11,7 @@ from huggingface_hub import hf_hub_download
 from torch.cuda import is_available as cuda_is_available
 from auto_gptq import exllama_set_max_input_length
 
-from src.utils.elastic import index_document
+from src.utils.opensearch_ import index_document
 
 INFERENCE_LOGGING_INDEX_NAME = "api-inference-log"
 
@@ -152,6 +152,7 @@ class AppModel:
             self._model = AutoModelForCausalLM.from_pretrained(
                 self._model_name,
                 device_map=self._device_map,
+                trust_remote_code=True
             )
         
         elif model_type_value in [ModelType.GGUF]:
@@ -171,7 +172,7 @@ class AppModel:
         
         try:
             exllama_set_max_input_length(self._model, context_length)
-        except (AttributeError, ValueError):
+        except (AttributeError, ValueError, ImportError):
             pass
         
         if not tokenizer_model_name:

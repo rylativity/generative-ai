@@ -31,10 +31,12 @@ MODEL_ENV_VARS = [
     },
 ]
 
+OPTIONAL_VARS = ["MODEL_FILE","TOKENIZER_MODEL_NAME"]
+
 MODEL_KWARGS = {}
 for var_dict in MODEL_ENV_VARS:
     val = os.environ.get(var_dict["key"])
     if val:
         MODEL_KWARGS[var_dict["key"].lower()] = var_dict["type"](val)
-    else:
+    elif var_dict["key"] not in OPTIONAL_VARS:
         raise EnvironmentError(f"Missing required environment variable: {var_dict['key']}")

@@ -13,6 +13,17 @@ model_settings(
     }
 )
 
+def build_messages_history_string(messages:list[str]):
+    
+    messages_history_string = "\n\n".join(
+        [
+            f"{message['role'].title()}: {message['content']}"
+            for message in messages
+        ]
+    )
+
+    return messages_history_string
+
 if not healthcheck():
     st.error("Cannot connect to inference endpoint...")
 else:
@@ -38,19 +49,18 @@ else:
 
         with st.chat_message("assistant"):
             with st.spinner("..."):
-                messages_history_string = "\n\n".join(
-                    [
-                        f"{message['role'].title()}: {message['content']}"
-                        for message in st.session_state.messages
-                    ]
-                )
+                messages_history_string = build_messages_history_string(st.session_state.messages)
                 input = CHAT_PROMPT_TEMPLATE.format(messages=messages_history_string)
-                generation_parameters["stop_sequences"] = ["User:"]
+                generation_parameters["stop_sequences"] = ["User:", "[/INST]"]
                 response = generate_stream(
                     input=input,
                     generation_params=generation_parameters
                 )
                 response_msg = st.write_stream(response)
+        
+        for seq in generation_parameters["stop_sequences"]:
+            if seq in response_msg:
+                response_msg = response_msg.replace(seq, "")
 
         st.session_state.messages.append({"role": "assistant", "content": response_msg})
     st.button("Clear chat history", on_click=clear_messages)
