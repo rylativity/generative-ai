@@ -6,8 +6,7 @@ WORKDIR /app
 
 SHELL ["/bin/bash", "-c"]
 
-RUN useradd --create-home --shell /bin/bash fastapi && chown -R fastapi /app && \
-    apt-get -y update && apt-get -y install \
+RUN apt-get -y update && apt-get -y install \
         python3-dev python3-pip \
         curl \
         build-essential \
@@ -25,8 +24,6 @@ ENV PROCESSOR=${PROCESSOR}
 COPY ./dependency-setup.sh .
 RUN ./dependency-setup.sh
      
-COPY --chown=fastapi:root src/ /app/src/
-
-USER fastapi
+COPY src/ /app/src/
 
 CMD ["uvicorn","src.main:app", "--host", "0.0.0.0", "--port", "5000", "--log-level", "debug", "--reload"]

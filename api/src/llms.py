@@ -154,13 +154,20 @@ class AppModel:
                 device_map=self._device_map,
                 trust_remote_code=True
             )
+
+            if not tokenizer_model_name:
+                tokenizer_model_name = self._model_name
+            self._tokenizer = AutoTokenizer.from_pretrained(
+                    tokenizer_model_name,
+                    device_map=device_map,
+            )
         
         elif model_type_value in [ModelType.GGUF]:
             if not model_file:
                 raise ValueError("Must provide model_file if using GGUF model")
             self._model_file = model_file
 
-            model_path = hf_hub_download(self._model_name, filename=self._model_file)
+            model_path = hf_hub_download(repo_id=self._model_name, filename=self._model_file)
 
             self._model = Llama(model_path=model_path, 
                                     n_ctx=context_length,  # The max sequence length to use - note that longer sequence lengths require much more resources
@@ -175,12 +182,6 @@ class AppModel:
         except (AttributeError, ValueError, ImportError):
             pass
         
-        if not tokenizer_model_name:
-            tokenizer_model_name = self._model_name
-        self._tokenizer = AutoTokenizer.from_pretrained(
-                tokenizer_model_name,
-                device_map=device_map,
-        )
 
         ## The below breaks with GGUF Model
         # self._pipeline = pipeline(
