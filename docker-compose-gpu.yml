@@ -96,7 +96,7 @@ services:
     volumes:
       - ./api/src/:/app/src/
       - ./.env:/workspace/.env
-      - ~/.cache/:/home/fastapi/.cache/:rw
+      - ~/.cache/:/root/.cache/
     deploy:
       resources:
         reservations:
