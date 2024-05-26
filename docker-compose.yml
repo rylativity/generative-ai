@@ -68,11 +68,10 @@ services:
     ports: 
       - 5000:5000
     environment:
-      - MODEL_NAME=lmstudio-community/Meta-Llama-3-8B-Instruct-GGUF
-      - MODEL_FILE=Meta-Llama-3-8B-Instruct-Q4_K_M.gguf
-      # - MODEL_NAME=TheBloke/Mistral-7B-Instruct-v0.2-GGUF
-      # - MODEL_FILE=mistral-7b-instruct-v0.2.Q4_K_M.gguf
-      # - TOKENIZER_MODEL_NAME=TheBloke/Mistral-7B-Instruct-v0.2-GPTQ
+      - MODEL_NAME=lmstudio-community/Mistral-7B-Instruct-v0.3-GGUF
+      - MODEL_FILE=Mistral-7B-Instruct-v0.3-Q4_K_M.gguf
+      # - MODEL_NAME=lmstudio-community/Meta-Llama-3-8B-Instruct-GGUF
+      # - MODEL_FILE=Meta-Llama-3-8B-Instruct-Q4_K_M.gguf
       - MODEL_TYPE=GGUF
       - N_GPU_LAYERS=0
       - CONTEXT_LENGTH=8192
