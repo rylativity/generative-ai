@@ -6,6 +6,8 @@ INFERENCE_API_BASE_URL = "http://inference-api:5000"
 INFERENCE_API_HEALTHCHECK_ENDPOINT_URL = f"{INFERENCE_API_BASE_URL}/api/health"
 INFERENCE_API_GENERATION_ENDPOINT_URL = f"{INFERENCE_API_BASE_URL}/api/generate"
 INFERENCE_API_GENERATION_STREAM_ENDPOINT_URL = f"{INFERENCE_API_BASE_URL}/api/generate_stream"
+INFERENCE_API_CHAT_COMPLETION_URL = f"{INFERENCE_API_BASE_URL}/api/chat/generate"
+INFERENCE_API_CHAT_COMPLETION_STREAM_URL = f"{INFERENCE_API_BASE_URL}/api/chat/generate_stream"
 
 HEADERS = {
         "Content-Type":"application/json",
@@ -49,4 +51,22 @@ def generate(input:str, generation_params = DEFAULT_GENERATION_PARAMS, endpoint=
     data["input"] = input
 
     res = requests.post(url=endpoint, headers=HEADERS, data=json.dumps(data))
+    return res.json()
+
+def create_chat_completion(messages:list[dict], generation_params = None, endpoint=INFERENCE_API_CHAT_COMPLETION_URL):
+     
+    if not generation_params:
+        generation_params = {
+        "max_tokens":500,
+        "repeat_penalty":1.0,
+        "top_p":1.0,
+        "top_k":50,
+        "typical_p":1.0,
+        "temperature":0.7
+        }
+    data = {
+        "messages":messages,
+        "params":generation_params
+    }
+    res = requests.post(url=endpoint,headers=HEADERS,data=json.dumps(data))
     return res.json()

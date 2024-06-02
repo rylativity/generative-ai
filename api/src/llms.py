@@ -3,13 +3,11 @@ from datetime import datetime
 import json
 
 from logging import getLogger
-from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
 from llama_cpp import Llama
 from huggingface_hub import hf_hub_download
 
 # from ctransformers import AutoModelForCausalLM as CAutoModelForCausalLM
-from torch.cuda import is_available as cuda_is_available
-from auto_gptq import exllama_set_max_input_length
+# from auto_gptq import exllama_set_max_input_length
 
 from src.utils.opensearch_ import index_document
 
@@ -129,10 +127,9 @@ GPU_MODELS = [
 class AppModel:
     def __init__(
         self,
-        model_name,
+        model_name: str,
         model_type: str,
         model_file: str = None,
-        tokenizer_model_name=None,
         device_map="auto",
         n_gpu_layers=30,
         context_length=4000,
@@ -143,44 +140,43 @@ class AppModel:
         self._model_type = model_type
 
         model_type_value = ModelType[self._model_type.upper()]
-        if model_type_value in [ModelType.GPTQ, ModelType.AWQ, ModelType.OTHER]:
-            # if model_file:
-            #     self._model_file = model_file
-            # else:
-            #     pass
+        if model_type_value != ModelType.GGUF:
+            # # if model_file:
+            # #     self._model_file = model_file
+            # # else:
+            # #     pass
 
-            self._model = AutoModelForCausalLM.from_pretrained(
-                self._model_name,
-                device_map=self._device_map,
-                trust_remote_code=True
-            )
+            # self._model = AutoModelForCausalLM.from_pretrained(
+            #     self._model_name,
+            #     device_map=self._device_map,
+            #     trust_remote_code=True
+            # )
 
-            if not tokenizer_model_name:
-                tokenizer_model_name = self._model_name
-            self._tokenizer = AutoTokenizer.from_pretrained(
-                    tokenizer_model_name,
-                    device_map=device_map,
-            )
+            # if not tokenizer_model_name:
+            #     tokenizer_model_name = self._model_name
+            # self._tokenizer = AutoTokenizer.from_pretrained(
+            #         tokenizer_model_name,
+            #         device_map=device_map,
+            # )
+            raise Exception("ONLY SUPPORTS GGUF MODELS")
         
-        elif model_type_value in [ModelType.GGUF]:
-            if not model_file:
-                raise ValueError("Must provide model_file if using GGUF model")
-            self._model_file = model_file
+        if not model_file:
+            raise ValueError("Must provide model_file if using GGUF model")
+        
+        self._model_file = model_file
 
-            model_path = hf_hub_download(repo_id=self._model_name, filename=self._model_file)
+        model_path = hf_hub_download(repo_id=self._model_name, filename=self._model_file)
 
-            self._model = Llama(model_path=model_path, 
-                                    n_ctx=context_length,  # The max sequence length to use - note that longer sequence lengths require much more resources
-                                    n_threads=llama_cpp_threads,            # The number of CPU threads to use, tailor to your system and the resulting performance
-                                    n_gpu_layers=n_gpu_layers        # The number of layers to offload to GPU, if you have GPU acceleration available
+        self._model = Llama(model_path=model_path, 
+                                n_ctx=context_length,  # The max sequence length to use - note that longer sequence lengths require much more resources
+                                n_threads=llama_cpp_threads,            # The number of CPU threads to use, tailor to your system and the resulting performance
+                                n_gpu_layers=n_gpu_layers        # The number of layers to offload to GPU, if you have GPU acceleration available
                                 )
-        else:
-            raise Exception(f"No AppModel interface implemented for model type {self._model_type}")
         
-        try:
-            exllama_set_max_input_length(self._model, context_length)
-        except (AttributeError, ValueError, ImportError):
-            pass
+        # try:
+        #     exllama_set_max_input_length(self._model, context_length)
+        # except (AttributeError, ValueError, ImportError):
+        #     pass
         
 
         ## The below breaks with GGUF Model
@@ -208,65 +204,50 @@ class AppModel:
     ):
         original_prompt = input
 
-        if ModelType[self._model_type.upper()] == ModelType.GGUF:
-            generation_config = {
-                "max_tokens":max_new_tokens,
-                "temperature":temperature,
-                "repeat_penalty":repetition_penalty,
-                "top_k":top_k,
-                "top_p":top_p,
-                "typical_p":typical_p,
-            }
-            # generation_config["stop"] = generation_config["stop_sequences"]
-            generation_config["echo"] = False
-
-            if do_sample:
-                pass
-            else:
-                generation_config["top_k"] = 1
-            
-            output_token_length = 0
-            prompt = original_prompt
-            while output_token_length < min_new_tokens:
-                response = self._model(
-                    prompt, 
-                    **generation_config
-                    )
-                
-                generated_text = response["choices"][0]["text"]
-                
-                output_token_length += response["usage"]["completion_tokens"]
-                prompt += generated_text # In case we have to generate more text to meet minimum token count
-        else:
-            generation_config = {
-            "min_new_tokens":min_new_tokens,
-            "max_new_tokens":max_new_tokens,
-            "do_sample":do_sample,
+        generation_config = {
+            "max_tokens":max_new_tokens,
             "temperature":temperature,
-            "repetition_penalty":repetition_penalty,
+            "repeat_penalty":repetition_penalty,
             "top_k":top_k,
             "top_p":top_p,
             "typical_p":typical_p,
-                # "num_beams":num_beams,
-                # "num_return_sequences":num_return_sequences,
-                # "stop_sequences":stop_sequences
-            }
-            if self._device_map == "auto" and cuda_is_available():
-                input_tensor = self._tokenizer.encode(original_prompt, return_tensors="pt").to(
-                    "cuda"
-                )
-            else:
-                input_tensor = self._tokenizer.encode(original_prompt, return_tensors="pt")
-            
-            output_tensor = self._model.generate(
-                input_tensor,
-                **generation_config
-            )
+            "echo": False
+        }
+        if not do_sample:
+            generation_config["top_k"] = 1
 
-            generated_tensor = output_tensor[:, input_tensor.shape[1] :]
-            output_token_length = len(generated_tensor[0])
-            ## The batch_decode call below removes the input tokens
-            generated_text = self._tokenizer.batch_decode(generated_tensor)[0]
+        # generation_config["stop"] = generation_config["stop_sequences"]
+# if model_file:
+        # #     self._model_file = model_file
+        # # else:
+        # #     pass
+
+        # self._model = AutoModelForCausalLM.from_pretrained(
+        #     self._model_name,
+        #     device_map=self._device_map,
+        #     trust_remote_code=True
+        # )
+
+        # if not tokenizer_model_name:
+        #     tokenizer_model_name = self._model_name
+        # self._tokenizer = AutoTokenizer.from_pretrained(
+        #         tokenizer_model_name,
+        #         device_map=device_map,
+        # )
+        
+        
+        output_token_length = 0
+        prompt = original_prompt
+        while output_token_length < min_new_tokens:
+            response = self._model.create_completion(
+                prompt, 
+                **generation_config
+                )
+            
+            generated_text = response["choices"][0]["text"]
+            
+            output_token_length += response["usage"]["completion_tokens"]
+            prompt += generated_text # In case we have to generate more text to meet minimum token count
 
         for sequence in stop_sequences:
             generated_text = generated_text.split(sequence)[0]
@@ -375,4 +356,63 @@ class AppModel:
         else:
             raise Exception("Only supports GGUF models")
 
+    def generate_completion(
+        self,
+        prompt: str,
+        log_inferences=True,
+        **generation_params
+    ):
+        
+        response = self._model.create_completion(
+            prompt, 
+            **generation_params
+            )
+
+        if log_inferences:
+            try:
+                payload = {
+                    "prompt":prompt,
+                    "output":response,
+                    "timestamp":datetime.now().isoformat(),
+                    "generation_params":generation_params
+                }
+                index_document(
+                    index_name=INFERENCE_LOGGING_INDEX_NAME,
+                    doc=payload,
+                    create_missing_index=True
+                )
+            except Exception as e:
+                log.error(e)
             
+        return response
+
+    def generate_chat_completion(
+        self,
+        messages: str,
+        log_inferences=True,
+        **chat_generation_params
+    ):
+        
+        response = self._model.create_chat_completion(
+            messages=messages, 
+            **chat_generation_params
+            )
+
+        if log_inferences:
+            try:
+                payload = {
+                    "prompt":str(messages),
+                    "output":response,
+                    "timestamp":datetime.now().isoformat(),
+                    "generation_params":chat_generation_params
+                }
+                index_document(
+                    index_name=INFERENCE_LOGGING_INDEX_NAME,
+                    doc=payload,
+                    create_missing_index=True
+                )
+            except Exception as e:
+                log.error(e)
+            
+        return response
+    

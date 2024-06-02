@@ -4,14 +4,11 @@ from fastapi.logger import logger
 from starlette.middleware import Middleware
 from starlette.middleware.cors import CORSMiddleware
 
-from datetime import datetime
-from io import BytesIO
 import logging
-import socket
 
 from src.model_config import MODEL_KWARGS
 from src.llms import AppModel
-from src.models import GenerationParameters
+from src.models import GenerationParameters, GenParams, ChatMessage
 
 ### https://github.com/tiangolo/uvicorn-gunicorn-fastapi-docker/issues/19
 gunicorn_logger = logging.getLogger('gunicorn.error')
@@ -71,4 +68,23 @@ async def generate_stream(
         ),
         media_type="application/x-ndjson"
     )
-    
+
+@app.post("/api/chat/generate")
+async def generate_chat(
+        messages:list[ChatMessage],
+        params:GenParams,
+    ):
+    return model.generate_chat_completion(messages=messages,**dict(params))
+
+@app.post("/api/chat/generate_stream")
+async def generate_chat_stream(
+        messages:list[ChatMessage],
+        params:GenParams,
+    ):
+    params["stream"] = True
+    return StreamingResponse(
+        model.generate_chat_completion(
+            messages=messages,
+            **dict(params)
+        )
+    )
