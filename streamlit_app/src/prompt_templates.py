@@ -63,20 +63,14 @@ Assistant:""",
 )
 
 CONDENSE_QUESTION_PROMPT_TEMPLATE = PromptTemplate(
-    template="""<s>[INST]
-<<SYS>>
-You are a helpful assistant.
-<</SYS>>
-
-Given the following chat history and a new input from the user, rephrase the input to be a standalone question.
+    template="""Given the following chat history and a new input from the user, rephrase the input to be a standalone message.
 
 Chat History:
 {chat_history}
 
+New Input: {input}
 
-New Input: {input}[/INST]
-
-Standalone Question:""",
+Standalone Message:""",
     input_variables=["chat_history", "input"],
 )
 

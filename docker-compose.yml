@@ -47,17 +47,17 @@ services:
     volumes:
       - ./frontend/src/:/app/src/
   
-  # streamlit:
-  #   build: 
-  #     context: ./streamlit_app/
-  #   environment:
-  #     - CHROMADB_HOST=chroma
-  #     - CHROMADB_PORT=8000
-  #   ports:
-  #     - 8501:8501
-  #   volumes:
-  #     - ./streamlit_app/:/app/
-  #     - ~/.cache/:/root/.cache/
+  streamlit:
+    build: 
+      context: ./streamlit_app/
+    environment:
+      - CHROMADB_HOST=chroma
+      - CHROMADB_PORT=8000
+    ports:
+      - 8501:8501
+    volumes:
+      - ./streamlit_app/:/app/
+      - ~/.cache/:/root/.cache/
 
   inference-api:
     image: generative-ai-inference-api-cpu

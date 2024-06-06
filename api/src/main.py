@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Response, Request
+from fastapi import FastAPI, Response, Request, Body
 from fastapi.responses import RedirectResponse, StreamingResponse, JSONResponse
 from fastapi.logger import logger
 from starlette.middleware import Middleware
@@ -68,6 +68,13 @@ async def generate_stream(
         ),
         media_type="application/x-ndjson"
     )
+
+@app.post("/api/generate_completion")
+async def generate_completion(
+        input:str = Body(...),
+        params:GenParams = GenParams().model_dump(),
+    ):
+    return model.generate_completion(prompt=input,**dict(params))
 
 @app.post("/api/chat/generate")
 async def generate_chat(

@@ -19,7 +19,7 @@ from prompt_templates import (
     CHAT_PROMPT_TEMPLATE,
 )
 from components import model_settings
-from utils.inference import generate, generate_stream, healthcheck
+from utils.inference import generate, generate_stream, healthcheck, create_completion, create_chat_completion
 
 FILES_BASE_DIR = "./uploaded_files/"
 SOURCE_DOCS_DIR = f"{FILES_BASE_DIR}source/"
@@ -306,11 +306,12 @@ else:
                     )
                     input = CONDENSE_QUESTION_PROMPT_TEMPLATE.format(chat_history=messages_history_string, input=prompt)
                     # generation_parameters["stop_sequences"] = stop_sequences
-                    response = generate(
+                    response = create_completion(
                         input=input,
                         generation_params=generation_parameters,
                     )
-                    condensed_input = response["text"]
+                    response_text = response["choices"][0]["text"]
+                    condensed_input = response_text
                     if return_intermediate_question:
                         condensed_input_placeholder.caption(
                             f"Question rephrased to: {condensed_input}"
@@ -334,19 +335,30 @@ else:
                 stop_sequences = ["User:"]
                 ## RAG PRROMPT CHAT MODEL
                 if relevant_documents:
-                    input = RAG_PROMPT_TEMPLATE.format(context=context_string, input=condensed_input)
-                    generation_parameters["stop_sequences"] = stop_sequences
+                    user_message = f"Context:\n{context_string}\n\n{condensed_input}"
+                    messages_list = st.session_state.messages + [{"role":"user","content":user_message}]
+
+                    # input = RAG_PROMPT_TEMPLATE.format(context=context_string, input=condensed_input)
                     
                 else:
-                    input = CHAT_PROMPT_TEMPLATE.format(messages=messages_history_string)
-                    generation_parameters["stop_sequences"] = stop_sequences
+                    messages_list = st.session_state.messages + [{"role":"user","content":condensed_input}]
+                    # input = CHAT_PROMPT_TEMPLATE.format(messages=messages_history_string)
                 
-                response = generate_stream(
-                        input=input,
-                        generation_params=generation_parameters,
-                    )
+                generation_parameters["stop_sequences"] = stop_sequences
                 
-                response_msg = message_placeholder.write_stream(response)
+                response = create_chat_completion(
+                    messages=messages_list,
+                    generation_params=None,
+                )
+                st.write(messages_list)
+                response_text = response["choices"][0]["message"]["content"]
+                # response = generate_stream(
+                #         input=input,
+                #         generation_params=generation_parameters,
+                #     )
+                
+                # response_msg = message_placeholder.write_stream(response)
+                response_msg = message_placeholder.write(response_text)
 
                 if return_sources and len(relevant_documents) > 0:
                     try:
