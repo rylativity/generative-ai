@@ -335,13 +335,13 @@ else:
                 stop_sequences = ["User:"]
                 ## RAG PRROMPT CHAT MODEL
                 if relevant_documents:
-                    user_message = f"Context:\n{context_string}\n\n{condensed_input}"
-                    messages_list = st.session_state.messages + [{"role":"user","content":user_message}]
+                    user_message = f"Context:\n{context_string}\n\n{prompt}"
+                    messages_list = st.session_state.messages[:-1] + [{"role":"user","content":user_message}] # Replace the last message with the user message and context
 
                     # input = RAG_PROMPT_TEMPLATE.format(context=context_string, input=condensed_input)
                     
                 else:
-                    messages_list = st.session_state.messages + [{"role":"user","content":condensed_input}]
+                    messages_list = st.session_state.messages
                     # input = CHAT_PROMPT_TEMPLATE.format(messages=messages_history_string)
                 
                 generation_parameters["stop_sequences"] = stop_sequences
@@ -350,7 +350,8 @@ else:
                     messages=messages_list,
                     generation_params=None,
                 )
-                st.write(messages_list)
+                
+                st.write(response)
                 response_text = response["choices"][0]["message"]["content"]
                 # response = generate_stream(
                 #         input=input,
@@ -373,5 +374,6 @@ else:
                     except NameError:
                         pass
 
-            st.session_state.messages.append({"role": "assistant", "content": response_msg})
+            st.session_state.messages.append({"role": "assistant", "content": response_text})
+            st.write(messages_list)
     st.button("Clear chat history", on_click=clear_messages)

@@ -68,7 +68,7 @@ services:
       - ~/.cache/:/root/.cache/
   
   inference-api:
-    image: generative-ai-inference-api-gpu
+    image: ghcr.io/rylativity/generative-ai-inference-api-gpu:latest
     build: 
       context: ./api
       args:

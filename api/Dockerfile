@@ -27,3 +27,5 @@ RUN ./dependency-setup.sh
 COPY src/ /app/src/
 
 CMD ["uvicorn","src.main:app", "--host", "0.0.0.0", "--port", "5000", "--log-level", "debug", "--reload"]
+
+LABEL org.opencontainers.image.source=https://github.com/rylativity/generative-ai
