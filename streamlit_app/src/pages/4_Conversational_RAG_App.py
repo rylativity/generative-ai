@@ -375,5 +375,5 @@ else:
                         pass
 
             st.session_state.messages.append({"role": "assistant", "content": response_text})
-            st.write(messages_list)
+            # st.write(messages_list)
     st.button("Clear chat history", on_click=clear_messages)
