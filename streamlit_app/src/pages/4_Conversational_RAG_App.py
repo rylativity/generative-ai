@@ -351,7 +351,7 @@ else:
                     generation_params=None,
                 )
                 
-                st.write(response)
+                # st.write(response)
                 response_text = response["choices"][0]["message"]["content"]
                 # response = generate_stream(
                 #         input=input,
