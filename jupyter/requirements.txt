@@ -14,7 +14,7 @@ rouge
 pypdf
 opensearch-py
 optimum
-auto-gptq
+# auto-gptq
 diffusers
 invisible_watermark
 accelerate

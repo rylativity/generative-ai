@@ -5,5 +5,5 @@ cryptography
 transformers[torch]
 llama-cpp-python
 elasticsearch
-auto-gptq
+# auto-gptq
 opensearch-py
