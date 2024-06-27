@@ -2,6 +2,7 @@ streamlit
 transformers[agents]
 sentence-transformers
 langchain
+langchain-community
 chromadb-client
 opentelemetry-exporter-otlp
 unstructured[all-docs]
@@ -13,4 +14,4 @@ python-dotenv
 streamlit-drawable-canvas
 elasticsearch
 fastapi ##required for chromadb as of 2024-02-06
-llama-cpp-python
+# llama-cpp-python
