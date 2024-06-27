@@ -79,6 +79,19 @@ def fetch_available_sources():
     st.session_state["sources"] = glob(f"{SOURCE_DOCS_DIR}*")
     return st.session_state["sources"]
 
+def upsert_elasticsearch_docs(documents:list[Document], overwrite_existing_source_docs=False):
+    if overwrite_existing_source_docs:
+        ... #TODO: Delete docs with that source from elasticsearch
+    
+    es_docs = [
+        {
+            "text":doc.page_content,
+            "hash_id":sha1(f"{doc.page_content}{doc.metadata['start_index']}".encode("utf8")).hexdigest(),
+            "embedding":embedding_function(doc.page_content),
+            "metadata":doc.metadata
+        } for doc in documents
+    ]
+    ... #TODO: WRITE TO ELASTICSEARCH
 
 def upsert_chroma_docs(documents: list[Document], overwrite_existing_source_docs=False):
     if overwrite_existing_source_docs:
