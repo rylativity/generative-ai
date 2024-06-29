@@ -2,6 +2,7 @@ jupyterlab
 transformers[agents]
 torch
 langchain
+langchain-community
 faiss-cpu
 sentence-transformers
 InstructorEmbedding
