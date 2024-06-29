@@ -13,5 +13,6 @@ pytesseract
 python-dotenv
 streamlit-drawable-canvas
 elasticsearch
+opensearch-py
 fastapi ##required for chromadb as of 2024-02-06
 # llama-cpp-python

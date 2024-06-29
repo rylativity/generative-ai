@@ -4,15 +4,16 @@ from shutil import rmtree
 import json
 from hashlib import sha1
 
-import chromadb
-from chromadb.config import Settings
-from chromadb.utils.embedding_functions import SentenceTransformerEmbeddingFunction
 import streamlit as st
+from sentence_transformers import SentenceTransformer
+from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_community.vectorstores import OpenSearchVectorSearch
+from huggingface_hub import hf_hub_download
 from langchain.document_loaders import UnstructuredURLLoader, UnstructuredPDFLoader
 from langchain.docstore.document import Document
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from torch.cuda import is_available as cuda_is_available
-
+from opensearchpy import OpenSearch
 from prompt_templates import (
     RAG_PROMPT_TEMPLATE,
     CONDENSE_QUESTION_PROMPT_TEMPLATE,
@@ -20,6 +21,7 @@ from prompt_templates import (
 )
 from components import model_settings
 from utils.inference import generate, generate_stream, healthcheck, create_completion, create_chat_completion
+from utils.opensearch import get_client, count_docs_in_index, delete_index, bulk_upsert
 
 FILES_BASE_DIR = "./uploaded_files/"
 SOURCE_DOCS_DIR = f"{FILES_BASE_DIR}source/"
@@ -28,37 +30,45 @@ PROCESSED_DOCS_DIR = f"{FILES_BASE_DIR}processed/"
 os.makedirs(SOURCE_DOCS_DIR, exist_ok=True)
 os.makedirs(PROCESSED_DOCS_DIR, exist_ok=True)
 
-CHROMADB_HOST = os.environ.get("CHROMADB_HOST") or "localhost"
-CHROMADB_PORT = os.environ.get("CHROMADB_PORT") or "8000"
-CHROMADB_COLLECTION = os.environ.get("CHROMADB_COLLECTION") or "default"
+OPENSEARCH_HOST = os.environ.get("OPENSEARCH_HOST") or "http://opensearch:9200"
+OPENSEARCH_INDEX = os.environ.get("OPENSEARCH_INDEX") or "streamlit-docs"
+OPENSEARCH_USERNAME = os.environ.get("OPENSEARCH_USERNAME") or "admin"
+OPENSEARCH_PASSWORD = os.environ.get("OPENSEARCH_PASSWORD") or "admin"
+
 DEFAULT_CHUNK_SIZE = 500
 DEFAULT_CHUNK_OVERLAP = 100
 
-embedding_model_name = "all-MiniLM-L6-v2"
-embedding_function = SentenceTransformerEmbeddingFunction(
-    model_name=embedding_model_name, device="cuda" if cuda_is_available() else "cpu"
-)
-chroma_httpclient = chromadb.HttpClient(
-    host=CHROMADB_HOST,
-    port=CHROMADB_PORT,
-    settings=Settings(anonymized_telemetry=False),
-)
-collection = chroma_httpclient.get_or_create_collection(
-    CHROMADB_COLLECTION, embedding_function=embedding_function
+opensearch_client:OpenSearch = get_client(
+    hosts=OPENSEARCH_HOST,
+    username=OPENSEARCH_USERNAME,
+    password=OPENSEARCH_PASSWORD
 )
 
-num_docs = collection.count()
+embedding_model_name = "sentence-transformers/all-mpnet-base-v2"
+embeddings = HuggingFaceEmbeddings(model_name=embedding_model_name)
+
+docsearch = OpenSearchVectorSearch(
+    opensearch_url=OPENSEARCH_HOST,
+    index_name=OPENSEARCH_INDEX,
+    embedding_function=embeddings
+)
+
+def create_docsearch_index():
+    return docsearch.create_index(index_name = OPENSEARCH_INDEX, dimension=embeddings.dict()["client"].get_sentence_embedding_dimension())
+
+if not docsearch.index_exists():
+    create_docsearch_index()
+    
+num_docs = count_docs_in_index(client=opensearch_client, index=OPENSEARCH_INDEX)
 
 error = st.empty()
 
-
 def delete_all_data():
     rmtree(FILES_BASE_DIR)
-    try:
-        chroma_httpclient.delete_collection(CHROMADB_COLLECTION)
-    except ValueError:
-        pass
+    docsearch.delete_index()
+    create_docsearch_index()
 
+    # delete_index(opensearch_client,OPENSEARCH_INDEX)
 
 def write_to_fs(file_content: bytes | str, filename: str, upload_dir=SOURCE_DOCS_DIR):
     if type(file_content) == bytes:
@@ -79,55 +89,39 @@ def fetch_available_sources():
     st.session_state["sources"] = glob(f"{SOURCE_DOCS_DIR}*")
     return st.session_state["sources"]
 
-def upsert_elasticsearch_docs(documents:list[Document], overwrite_existing_source_docs=False):
-    if overwrite_existing_source_docs:
-        ... #TODO: Delete docs with that source from elasticsearch
-    
-    es_docs = [
-        {
-            "text":doc.page_content,
-            "hash_id":sha1(f"{doc.page_content}{doc.metadata['start_index']}".encode("utf8")).hexdigest(),
-            "embedding":embedding_function(doc.page_content),
-            "metadata":doc.metadata
-        } for doc in documents
-    ]
-    ... #TODO: WRITE TO ELASTICSEARCH
-
-def upsert_chroma_docs(documents: list[Document], overwrite_existing_source_docs=False):
+def upsert_opensearch_docs(documents:list[Document], overwrite_existing_source_docs=False):
     if overwrite_existing_source_docs:
         sources = set([doc.metadata["source"] for doc in documents])
-        for source in sources:
-            collection.delete(where={"source": source})
-
-    texts = [doc.page_content for doc in documents]
-    ids = [
-        sha1(
-            f"{doc.page_content}{doc.metadata['start_index']}".encode("utf8")
-        ).hexdigest()
-        for doc in documents
-    ]
-    embeddings = embedding_function(texts)
-    metadatas = [doc.metadata for doc in documents]
-
-    collection.upsert(
-        ids=ids, documents=texts, embeddings=embeddings, metadatas=metadatas
+        
+        opensearch_client.delete_by_query(
+            index=OPENSEARCH_INDEX,
+            body={
+                "query":{
+                    "bool":{
+                        "should":[
+                            {
+                                "match":{
+                                    "source":source
+                                }
+                            } for source in sources
+                        ]
+                    }
+                }
+            }
+        )
+    
+    docsearch.add_documents(
+        documents=documents
     )
 
 
-def search(query: str, query_filter: dict = None, n_results=5, max_distance=0.8):
-    query_embedding = embedding_function([query])
-    results = collection.query(
-        query_embeddings=query_embedding, where=query_filter, n_results=n_results
-    )
-    results = {k: v[0] for k, v in results.items() if v}
+def search(query: str, query_filter: dict = None, n_results=5, min_score=0.0):
+    results = docsearch.similarity_search_with_score(query, k=n_results)
+    
+    results = filter(lambda x: x[1] >= min_score, results)
 
-    irrelevant_indices = sorted(
-        [i for i, dist in enumerate(results["distances"]) if dist >= max_distance],
-        reverse=True,
-    )
-    for idx in irrelevant_indices:
-        for k in results:
-            del results[k][idx]
+    results = [doc[0].dict() for doc in results]
+    
     return results
 
 
@@ -155,7 +149,7 @@ def store_and_index_uploaded_file(
     )
     docs = loader.load_and_split(text_splitter=splitter)
 
-    upsert_chroma_docs(
+    upsert_opensearch_docs(
         docs, overwrite_existing_source_docs=overwrite_existing_source_docs
     )
 
@@ -187,7 +181,7 @@ def store_and_index_html(
         add_start_index=True,
     )
     docs = loader.load_and_split(text_splitter=splitter)
-    upsert_chroma_docs(
+    upsert_opensearch_docs(
         docs, overwrite_existing_source_docs=overwrite_existing_source_docs
     )
 
@@ -276,12 +270,12 @@ else:
         value=5,
         help="Max number of top-matching chunks from the available, chunked documents to add to the prompt context block",
     )
-    max_similarity_distance = st.number_input(
-        "Max Similarity Distance",
-        min_value=0.01,
+    min_score = st.number_input(
+        "Min Relevancy Score",
+        min_value=0.00,
         max_value=None,
         value=1.0,
-        help="Maximum L2 distance between query and matching document to consider adding the document to the context (limited by Max Context Document Chunks value). Lower scores indicate a better match.",
+        help="Minimum relevancy score between query and matching document to consider adding the document to the context (limited by Max Context Document Chunks value). Higher scores indicate a better match.",
     )
 
     if "messages" not in st.session_state:
@@ -335,14 +329,12 @@ else:
                     search_res = search(
                         query=condensed_input,
                         n_results=(5 * max_context_document_chunks),
-                        max_distance=max_similarity_distance,
+                        min_score=min_score,
                     )
-                    search_res = {
-                        k: v[:max_context_document_chunks]
-                        for k, v in search_res.items()
-                    }
+                    
+                    search_res = search_res[:max_context_document_chunks]
                     # st.write(res)
-                    relevant_documents = search_res["documents"]
+                    relevant_documents = [f'{res["metadata"]["source"]} - {res["page_content"]}' for res in search_res]
                 context_string = "\n\n".join(relevant_documents)
 
                 stop_sequences = ["User:"]
