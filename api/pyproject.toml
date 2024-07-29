@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "inference-api"
+version = "0.1.0"
+description = ""
+authors = ["Ryan <ryan.stewart113@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+fastapi = "^0.111.1"
+uvicorn = "^0.30.3"
+pyjwt = "^2.8.0"
+cryptography = "^43.0.0"
+transformers = {extras = ["torch"], version = "^4.43.3"}
+llama-cpp-python = "^0.2.84"
+elasticsearch = "^8.14.0"
+opensearch-py = "^2.6.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

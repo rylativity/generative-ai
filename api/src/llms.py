@@ -9,7 +9,7 @@ from huggingface_hub import hf_hub_download
 # from ctransformers import AutoModelForCausalLM as CAutoModelForCausalLM
 # from auto_gptq import exllama_set_max_input_length
 
-from src.utils.opensearch_ import index_document
+from utils.opensearch_ import index_document
 
 INFERENCE_LOGGING_INDEX_NAME = "api-inference-log"
 

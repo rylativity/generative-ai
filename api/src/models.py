@@ -28,5 +28,5 @@ class GenerationParameters(BaseModel):
     log_inferences:bool=True
 
 class ChatMessage(BaseModel):
-    role: str
+    role: str = "user"
     content: str

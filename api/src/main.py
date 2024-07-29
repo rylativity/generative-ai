@@ -3,12 +3,13 @@ from fastapi.responses import RedirectResponse, StreamingResponse, JSONResponse
 from fastapi.logger import logger
 from starlette.middleware import Middleware
 from starlette.middleware.cors import CORSMiddleware
+import uvicorn
 
 import logging
 
-from src.model_config import MODEL_KWARGS
-from src.llms import AppModel
-from src.models import GenerationParameters, GenParams, ChatMessage
+from model_config import MODEL_KWARGS
+from llms import AppModel
+from models import GenerationParameters, GenParams, ChatMessage
 
 ### https://github.com/tiangolo/uvicorn-gunicorn-fastapi-docker/issues/19
 gunicorn_logger = logging.getLogger('gunicorn.error')
