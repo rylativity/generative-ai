@@ -11,7 +11,7 @@ echo PROCESSOR = 'cpu'. Skipping CUDA dependencies... Set PROCESSOR = "gpu" and 
 exit 0;
 elif [ "$PROCESSOR" = "gpu" ] ; then
 # Compile and reinstal llama-cpp-python with CUDA support
-CUDACXX=/usr/local/cuda/bin/nvcc CMAKE_ARGS="-DGGML_CUDA=on -DCMAKE_CUDA_ARCHITECTURES=all-major" poetry add llama-cpp-python
+CUDACXX=/usr/local/cuda/bin/nvcc CMAKE_ARGS="-DGGML_CUDA=on -DCMAKE_CUDA_ARCHITECTURES=all-major" poetry run pip install llama-cpp-python --upgrade --no-cache-dir --force-reinstall
 else
 echo ERROR. \$PROCESSOR value must be one of 'cpu' or 'gpu'
 exit 1;
